@@ -1,0 +1,177 @@
+import React, { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { Shield, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import ToastNotification from '../components/ToastNotification';
+
+export const LoginPage = () => {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [usernameOrEmail, setUsernameOrEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  const from = location.state?.from?.pathname || '/dashboard';
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!usernameOrEmail || !password) {
+      setToast({ type: 'warning', message: 'Please enter both username/email and password' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await login(usernameOrEmail, password, rememberMe);
+      setToast({ type: 'success', message: 'Login successful! Redirecting to SOC Dashboard...' });
+      setTimeout(() => {
+        navigate(from, { replace: true });
+      }, 600);
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'Invalid username or password';
+      setToast({ type: 'error', message: msg });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#070A12] flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Background Glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(#1E293B_1px,transparent_1px)] [background-size:32px_32px] opacity-20 pointer-events-none"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-blue-600/10 blur-[130px] rounded-full pointer-events-none"></div>
+
+      <ToastNotification
+        type={toast?.type}
+        message={toast?.message}
+        onClose={() => setToast(null)}
+      />
+
+      <div className="glass-card max-w-md w-full p-8 rounded-2xl border border-slate-800 shadow-2xl relative z-10">
+        {/* Header Logo */}
+        <div className="flex flex-col items-center text-center mb-8">
+          <div className="w-12 h-12 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 mb-3 shadow-lg shadow-blue-600/20">
+            <Shield size={28} className="animate-pulse" />
+          </div>
+          <h2 className="text-2xl font-bold text-white tracking-tight">SOC Portal Login</h2>
+          <p className="text-slate-400 text-xs mt-1">Authenticate to access Network Intrusion Detection System</p>
+        </div>
+
+        {/* Demo Credentials Quick-Fill Alert */}
+        <div className="mb-6 p-3 rounded-lg bg-blue-950/40 border border-blue-500/30 text-xs text-blue-300">
+          <div className="font-semibold mb-1 flex items-center gap-1.5 text-blue-400">
+            <span>Demo Accounts:</span>
+          </div>
+          <div className="flex flex-wrap gap-2 text-[11px] font-mono mt-1">
+            <button
+              onClick={() => { setUsernameOrEmail('admin'); setPassword('Admin123!'); }}
+              className="px-2 py-0.5 rounded bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 transition-colors"
+            >
+              Admin: admin / Admin123!
+            </button>
+            <button
+              onClick={() => { setUsernameOrEmail('analyst'); setPassword('Analyst123!'); }}
+              className="px-2 py-0.5 rounded bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40 transition-colors"
+            >
+              Analyst: analyst / Analyst123!
+            </button>
+          </div>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">
+              Email or Username
+            </label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
+                <User size={18} />
+              </span>
+              <input
+                type="text"
+                value={usernameOrEmail}
+                onChange={(e) => setUsernameOrEmail(e.target.value)}
+                placeholder="admin or user@nids.sec"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-950/80 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">
+              Password
+            </label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
+                <Lock size={18} />
+              </span>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full pl-10 pr-10 py-2.5 bg-slate-950/80 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between text-xs">
+            <label className="flex items-center gap-2 text-slate-300 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-0 cursor-pointer"
+              />
+              <span>Remember Me</span>
+            </label>
+            <Link to="/forgot-password" className="text-blue-400 hover:underline">
+              Forgot Password?
+            </Link>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm rounded-lg transition-all shadow-lg shadow-blue-600/30 border border-blue-400/30 flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {loading ? (
+              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            ) : (
+              <>
+                <span>Sign In to Dashboard</span>
+                <ArrowRight size={16} />
+              </>
+            )}
+          </button>
+        </form>
+
+        {/* Register Link */}
+        <div className="mt-8 pt-6 border-t border-slate-800 text-center text-xs text-slate-400">
+          Don't have an account?{' '}
+          <Link to="/register" className="text-blue-400 font-semibold hover:underline">
+            Register here
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;
