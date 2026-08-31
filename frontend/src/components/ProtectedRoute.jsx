@@ -22,7 +22,15 @@ export const ProtectedRoute = ({ children, allowedRoles }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  const normalizeRole = (r) => {
+    if (!r) return 'viewer';
+    return String(r).toLowerCase().trim();
+  };
+
+  const userRoleNorm = normalizeRole(user?.role);
+  const isAllowed = !allowedRoles || allowedRoles.some(r => normalizeRole(r) === userRoleNorm);
+
+  if (!isAllowed) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center p-6">
         <div className="glass-card max-w-md w-full p-8 rounded-xl text-center border border-red-500/30">

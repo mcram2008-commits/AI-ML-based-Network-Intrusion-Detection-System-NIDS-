@@ -127,7 +127,7 @@ export const DatasetsPage = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-950/60 p-3 rounded-lg border border-slate-800 text-xs font-mono">
                   <div>
                     <span className="text-slate-500 block text-[10px]">Records</span>
-                    <span className="text-white font-bold">{ds.num_records?.toLocaleString()}</span>
+                    <span className="text-white font-bold">{(ds.num_records ?? 0).toLocaleString()}</span>
                   </div>
                   <div>
                     <span className="text-slate-500 block text-[10px]">Features</span>
@@ -160,11 +160,11 @@ export const DatasetsPage = () => {
                   <div className="w-1/2 text-xs font-mono space-y-2">
                     <div>
                       <span className="text-emerald-400 font-semibold block">Normal Traffic:</span>
-                      <span className="text-slate-300">{ds.normal_count?.toLocaleString()} ({ds.normal_percentage}%)</span>
+                      <span className="text-slate-300">{(ds.normal_count ?? 0).toLocaleString()} ({ds.normal_percentage}%)</span>
                     </div>
                     <div>
                       <span className="text-red-400 font-semibold block">Attack Traffic:</span>
-                      <span className="text-slate-300">{ds.attack_count?.toLocaleString()} ({ds.attack_percentage}%)</span>
+                      <span className="text-slate-300">{(ds.attack_count ?? 0).toLocaleString()} ({ds.attack_percentage}%)</span>
                     </div>
                   </div>
                 </div>

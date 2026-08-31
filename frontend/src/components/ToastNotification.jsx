@@ -32,12 +32,22 @@ export const ToastNotification = ({ type = 'info', message, onClose, duration = 
     }
   };
 
-  const config = typeConfig[type] || typeConfig.info;
+  const formatMessage = (msg) => {
+    if (!msg) return '';
+    if (typeof msg === 'string') return msg;
+    if (Array.isArray(msg)) {
+      return msg.map(item => (typeof item === 'string' ? item : item.msg || item.message || JSON.stringify(item))).join('. ');
+    }
+    if (typeof msg === 'object') {
+      return msg.msg || msg.message || JSON.stringify(msg);
+    }
+    return String(msg);
+  };
 
   return (
     <div className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-lg border backdrop-blur-md shadow-xl transition-all animate-bounce-short max-w-md ${config.bg}`}>
       {config.icon}
-      <span className="text-xs font-medium tracking-wide flex-1">{message}</span>
+      <span className="text-xs font-medium tracking-wide flex-1">{formatMessage(message)}</span>
       <button onClick={onClose} className="p-1 hover:bg-white/10 rounded transition-colors">
         <X size={14} />
       </button>

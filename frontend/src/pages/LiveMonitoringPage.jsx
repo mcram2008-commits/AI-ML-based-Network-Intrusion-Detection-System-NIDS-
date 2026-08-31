@@ -195,7 +195,7 @@ export const LiveMonitoringPage = () => {
                       {f.packet_count} pkts / {f.byte_count} B
                     </td>
                     <td className="px-4 py-3 text-slate-400">
-                      {f.rate?.toLocaleString()}
+                      {(f.rate ?? 0).toLocaleString()}
                     </td>
                     <td className="px-4 py-3 font-bold">
                       <span className={f.prediction === 'Normal' ? 'text-emerald-400' : 'text-red-400'}>

@@ -29,12 +29,15 @@ export const LoginPage = () => {
     setLoading(true);
     try {
       await login(usernameOrEmail, password, rememberMe);
-      setToast({ type: 'success', message: 'Login successful! Redirecting to SOC Dashboard...' });
-      setTimeout(() => {
-        navigate(from, { replace: true });
-      }, 600);
+      navigate(from, { replace: true });
     } catch (err) {
-      const msg = err.response?.data?.detail || 'Invalid username or password';
+      let msg = err.response?.data?.detail;
+      if (Array.isArray(msg)) {
+        msg = msg.map(item => (typeof item === 'string' ? item : item.msg || item.message || JSON.stringify(item))).join('. ');
+      } else if (typeof msg === 'object') {
+        msg = msg?.msg || msg?.message || JSON.stringify(msg);
+      }
+      if (!msg) msg = 'Invalid username or password';
       setToast({ type: 'error', message: msg });
     } finally {
       setLoading(false);
@@ -61,27 +64,6 @@ export const LoginPage = () => {
           </div>
           <h2 className="text-2xl font-bold text-white tracking-tight">SOC Portal Login</h2>
           <p className="text-slate-400 text-xs mt-1">Authenticate to access Network Intrusion Detection System</p>
-        </div>
-
-        {/* Demo Credentials Quick-Fill Alert */}
-        <div className="mb-6 p-3 rounded-lg bg-blue-950/40 border border-blue-500/30 text-xs text-blue-300">
-          <div className="font-semibold mb-1 flex items-center gap-1.5 text-blue-400">
-            <span>Demo Accounts:</span>
-          </div>
-          <div className="flex flex-wrap gap-2 text-[11px] font-mono mt-1">
-            <button
-              onClick={() => { setUsernameOrEmail('admin'); setPassword('Admin123!'); }}
-              className="px-2 py-0.5 rounded bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 transition-colors"
-            >
-              Admin: admin / Admin123!
-            </button>
-            <button
-              onClick={() => { setUsernameOrEmail('analyst'); setPassword('Analyst123!'); }}
-              className="px-2 py-0.5 rounded bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/40 transition-colors"
-            >
-              Analyst: analyst / Analyst123!
-            </button>
-          </div>
         </div>
 
         {/* Form */}

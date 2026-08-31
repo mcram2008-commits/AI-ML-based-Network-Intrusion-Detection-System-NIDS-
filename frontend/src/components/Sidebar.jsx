@@ -42,7 +42,9 @@ export const Sidebar = () => {
         {/* Navigation List */}
         <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-140px)]">
           {navItems.map((item) => {
-            if (!item.roles.includes(user.role)) return null;
+            const userRoleNorm = (user?.role || 'viewer').toLowerCase().trim();
+            const isAllowed = item.roles.some(r => r.toLowerCase().trim() === userRoleNorm);
+            if (!isAllowed) return null;
             const Icon = item.icon;
             return (
               <NavLink

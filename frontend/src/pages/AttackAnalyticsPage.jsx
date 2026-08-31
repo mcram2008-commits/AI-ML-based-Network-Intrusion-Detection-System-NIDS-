@@ -51,7 +51,7 @@ export const AttackAnalyticsPage = () => {
         </h3>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data?.attack_timeline}>
+            <AreaChart data={data?.attack_timeline || []}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
               <XAxis dataKey="hour" stroke="#64748B" fontSize={11} />
               <YAxis stroke="#64748B" fontSize={11} />
@@ -67,7 +67,7 @@ export const AttackAnalyticsPage = () => {
 
       {/* Per Category Grid Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {data?.categories?.map((cat, idx) => (
+        {(data?.categories || []).map((cat, idx) => (
           <div key={idx} className="glass-card p-5 rounded-xl border border-slate-800 space-y-4">
             <div className="flex justify-between items-start">
               <div>

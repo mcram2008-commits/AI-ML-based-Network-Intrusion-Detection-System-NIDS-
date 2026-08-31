@@ -96,7 +96,7 @@ export const DashboardPage = () => {
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Flows Analyzed</span>
             <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center"><Activity size={18} /></div>
           </div>
-          <div className="text-2xl font-extrabold text-white font-mono">{stats?.total_flows.toLocaleString()}</div>
+          <div className="text-2xl font-extrabold text-white font-mono">{(stats?.total_flows ?? 0).toLocaleString()}</div>
           <div className="text-[11px] text-slate-500 mt-1">Monitored Connection Flows</div>
         </div>
 
@@ -105,7 +105,7 @@ export const DashboardPage = () => {
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Normal Traffic</span>
             <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><CheckCircle size={18} /></div>
           </div>
-          <div className="text-2xl font-extrabold text-emerald-400 font-mono">{stats?.normal_traffic_count.toLocaleString()}</div>
+          <div className="text-2xl font-extrabold text-emerald-400 font-mono">{(stats?.normal_traffic_count ?? 0).toLocaleString()}</div>
           <div className="text-[11px] text-slate-500 mt-1">Benign Packets</div>
         </div>
 
@@ -114,7 +114,7 @@ export const DashboardPage = () => {
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Attacks Detected</span>
             <div className="w-8 h-8 rounded-lg bg-red-500/10 text-red-400 flex items-center justify-center"><AlertTriangle size={18} /></div>
           </div>
-          <div className="text-2xl font-extrabold text-red-400 font-mono">{stats?.attack_count.toLocaleString()}</div>
+          <div className="text-2xl font-extrabold text-red-400 font-mono">{(stats?.attack_count ?? 0).toLocaleString()}</div>
           <div className="text-[11px] text-slate-500 mt-1">Malicious Flow Attempts</div>
         </div>
 
@@ -139,7 +139,7 @@ export const DashboardPage = () => {
           </h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={charts?.traffic_over_time}>
+              <AreaChart data={charts?.traffic_over_time || []}>
                 <defs>
                   <linearGradient id="colorNormal" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#10B981" stopOpacity={0.4}/>
@@ -171,7 +171,7 @@ export const DashboardPage = () => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={charts?.normal_vs_malicious}
+                  data={charts?.normal_vs_malicious || []}
                   cx="50%"
                   cy="50%"
                   innerRadius={55}
@@ -179,7 +179,7 @@ export const DashboardPage = () => {
                   paddingAngle={5}
                   dataKey="value"
                 >
-                  {charts?.normal_vs_malicious?.map((entry, index) => (
+                  {(charts?.normal_vs_malicious || []).map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -200,7 +200,7 @@ export const DashboardPage = () => {
           </h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={charts?.attack_distribution}>
+              <BarChart data={charts?.attack_distribution || []}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
                 <XAxis dataKey="category" stroke="#64748B" fontSize={10} />
                 <YAxis stroke="#64748B" fontSize={11} />
@@ -218,7 +218,7 @@ export const DashboardPage = () => {
           </h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={charts?.threat_severity} layout="vertical">
+              <BarChart data={charts?.threat_severity || []} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
                 <XAxis type="number" stroke="#64748B" fontSize={11} />
                 <YAxis dataKey="level" type="category" stroke="#64748B" fontSize={11} />
@@ -239,7 +239,7 @@ export const DashboardPage = () => {
           </h3>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={charts?.detection_rate_trend}>
+              <LineChart data={charts?.detection_rate_trend || []}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
                 <XAxis dataKey="day" stroke="#64748B" fontSize={11} />
                 <YAxis domain={[95, 100]} stroke="#64748B" fontSize={11} />
@@ -258,8 +258,8 @@ export const DashboardPage = () => {
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={charts?.protocol_distribution} dataKey="count" nameKey="protocol" cx="50%" cy="50%" outerRadius={70} fill="#3B82F6" label>
-                  {charts?.protocol_distribution?.map((entry, idx) => (
+                <Pie data={charts?.protocol_distribution || []} dataKey="count" nameKey="protocol" cx="50%" cy="50%" outerRadius={70} fill="#3B82F6" label>
+                  {(charts?.protocol_distribution || []).map((entry, idx) => (
                     <Cell key={idx} fill={['#3B82F6', '#8B5CF6', '#10B981', '#F59E0B'][idx % 4]} />
                   ))}
                 </Pie>
@@ -280,7 +280,7 @@ export const DashboardPage = () => {
           </h3>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={charts?.top_source_ips}>
+              <BarChart data={charts?.top_source_ips || []}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
                 <XAxis dataKey="ip" stroke="#64748B" fontSize={10} />
                 <YAxis stroke="#64748B" fontSize={11} />
@@ -298,7 +298,7 @@ export const DashboardPage = () => {
           </h3>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={charts?.top_dest_ips}>
+              <BarChart data={charts?.top_dest_ips || []}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" />
                 <XAxis dataKey="ip" stroke="#64748B" fontSize={9} />
                 <YAxis stroke="#64748B" fontSize={11} />

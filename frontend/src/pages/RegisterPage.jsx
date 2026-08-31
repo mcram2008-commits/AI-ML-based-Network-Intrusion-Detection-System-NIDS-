@@ -5,7 +5,7 @@ import { Shield, Lock, User, Mail, Phone, Check, X, Eye, EyeOff, ShieldCheck } f
 import ToastNotification from '../components/ToastNotification';
 
 export const RegisterPage = () => {
-  const { register } = useAuth();
+  const { register, login } = useAuth();
   const navigate = useNavigate();
 
   const [fullName, setFullName] = useState('');
@@ -62,12 +62,18 @@ export const RegisterPage = () => {
         role,
         terms
       });
-      setToast({ type: 'success', message: 'Registration successful! Redirecting to login...' });
+      setToast({ type: 'success', message: 'Account registered successfully! Redirecting to login...' });
       setTimeout(() => {
         navigate('/login');
-      }, 1000);
+      }, 400);
     } catch (err) {
-      const msg = err.response?.data?.detail || 'Registration failed. Please check inputs.';
+      let msg = err.response?.data?.detail;
+      if (Array.isArray(msg)) {
+        msg = msg.map(item => (typeof item === 'string' ? item : item.msg || item.message || JSON.stringify(item))).join('. ');
+      } else if (typeof msg === 'object') {
+        msg = msg?.msg || msg?.message || JSON.stringify(msg);
+      }
+      if (!msg) msg = 'Registration failed. Please check your inputs.';
       setToast({ type: 'error', message: msg });
     } finally {
       setLoading(false);
