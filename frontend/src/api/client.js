@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = 'http://127.0.0.1:8000/api';
 
 const client = axios.create({
   baseURL: API_BASE_URL,
@@ -36,5 +36,10 @@ client.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export const sendIPIncidentReport = async (reportData) => {
+  const res = await client.post('/reports/send-ip-report', reportData);
+  return res.data;
+};
 
 export default client;

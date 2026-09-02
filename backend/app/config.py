@@ -21,8 +21,19 @@ class Settings(BaseSettings):
     UPLOADS_DIR: str = os.path.join(BASE_DIR, "uploads")
     MODELS_DIR: str = os.path.join(BASE_DIR, "saved_models")
     
+    # Email / Mailgun / SMTP Config
+    SMTP_SERVER: str = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USERNAME: str = os.getenv("SMTP_USERNAME", "")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
+    SENDER_EMAIL: str = os.getenv("SENDER_EMAIL", "alerts@nids.sec")
+    SENDER_NAME: str = os.getenv("SENDER_NAME", "AEGIS NIDS SOC Alert Center")
+    EMAIL_ENABLED: bool = os.getenv("EMAIL_ENABLED", "False").lower() in ("true", "1", "yes")
+    
     class Config:
         case_sensitive = True
+        env_file = ".env"
+        extra = "ignore"
 
 settings = Settings()
 

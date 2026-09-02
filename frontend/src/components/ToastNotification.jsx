@@ -32,6 +32,8 @@ export const ToastNotification = ({ type = 'info', message, onClose, duration = 
     }
   };
 
+  const config = typeConfig[type] || typeConfig.info;
+
   const formatMessage = (msg) => {
     if (!msg) return '';
     if (typeof msg === 'string') return msg;

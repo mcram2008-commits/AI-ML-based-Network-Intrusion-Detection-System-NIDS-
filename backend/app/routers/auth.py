@@ -12,24 +12,30 @@ from app.auth.jwt import (
     create_refresh_token, generate_reset_token, decode_token
 )
 from app.auth.deps import get_current_user
+from app.services.email_service import build_welcome_email_html, send_email_dispatch
+
+from sqlalchemy import func
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def register(user_data: UserRegister, db: Session = Depends(get_db)):
+    username_clean = user_data.username.strip()
+    email_clean = user_data.email.lower().strip()
+
     # 1. Validation: password confirmation
     if user_data.password != user_data.confirm_password:
         raise HTTPException(status_code=400, detail="Passwords do not match")
         
-    # 2. Check unique username
-    existing_username = db.query(User).filter(User.username == user_data.username).first()
+    # 2. Check unique username (case-insensitive)
+    existing_username = db.query(User).filter(func.lower(User.username) == username_clean.lower()).first()
     if existing_username:
-        raise HTTPException(status_code=400, detail="Username already registered")
+        raise HTTPException(status_code=400, detail="Username already registered. Please choose a different username.")
         
-    # 3. Check unique email
-    existing_email = db.query(User).filter(User.email == user_data.email).first()
+    # 3. Check unique email (case-insensitive)
+    existing_email = db.query(User).filter(func.lower(User.email) == email_clean).first()
     if existing_email:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail="Email address already registered. Please login or use a different email.")
         
     # 4. Check password length
     if len(user_data.password) < 8:
@@ -42,10 +48,10 @@ def register(user_data: UserRegister, db: Session = Depends(get_db)):
     hashed_pwd = get_password_hash(user_data.password)
     
     new_user = User(
-        full_name=user_data.full_name,
-        username=user_data.username,
-        email=user_data.email.lower(),
-        phone=user_data.phone,
+        full_name=user_data.full_name.strip(),
+        username=username_clean,
+        email=email_clean,
+        phone=user_data.phone.strip() if user_data.phone else None,
         password_hash=hashed_pwd,
         role=role,
         is_active=True,
@@ -62,6 +68,22 @@ def register(user_data: UserRegister, db: Session = Depends(get_db)):
     db.add(log)
     db.commit()
     
+    # Send welcome email notification to registered email
+    try:
+        welcome_html = build_welcome_email_html(
+            full_name=new_user.full_name,
+            username=new_user.username,
+            email=new_user.email,
+            role=new_user.role
+        )
+        send_email_dispatch(
+            recipient_email=new_user.email,
+            subject="🛡️ Welcome to AEGIS NIDS - Account Provisioned",
+            html_content=welcome_html
+        )
+    except Exception as err:
+        print(f"[Email Service] Registration welcome email warning: {err}")
+    
     return new_user
 
 
@@ -70,7 +92,7 @@ def login(login_data: UserLogin, response: Response, db: Session = Depends(get_d
     identifier = login_data.username_or_email.lower().strip()
     
     user = db.query(User).filter(
-        (User.email == identifier) | (User.username == identifier)
+        (func.lower(User.email) == identifier) | (func.lower(User.username) == identifier)
     ).first()
     
     if not user:

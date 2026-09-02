@@ -67,3 +67,89 @@ def export_report_csv(db: Session = Depends(get_db), current_user: User = Depend
         media_type="text/csv",
         headers={"Content-Disposition": f"attachment; filename=nids_security_report_{datetime.date.today()}.csv"}
     )
+
+
+from app.schemas import IPReportEmailRequest, IPReportEmailResponse
+from app.services.email_service import build_ip_incident_email_html, send_email_dispatch
+
+@router.post("/send-ip-report", response_model=IPReportEmailResponse)
+def send_ip_incident_report(
+    req: IPReportEmailRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_any_user)
+):
+    src_ip = req.source_ip.strip()
+    dst_ip = req.destination_ip.strip()
+    
+    # 1. Query flows matching specific source and destination IP pair
+    flows = db.query(NetworkFlow).filter(
+        (NetworkFlow.source_ip == src_ip) & (NetworkFlow.destination_ip == dst_ip)
+    ).all()
+    
+    # Fallback to broader match if specific pair has 0 flows
+    if not flows:
+        flows = db.query(NetworkFlow).filter(
+            (NetworkFlow.source_ip == src_ip) | (NetworkFlow.destination_ip == dst_ip)
+        ).all()
+        
+    flow_ids = [f.id for f in flows]
+    total_connections = len(flows)
+    
+    preds = db.query(Prediction).filter(Prediction.flow_id.in_(flow_ids)).all() if flow_ids else []
+    attack_preds = [p for p in preds if p.prediction == "Malicious"]
+    attack_count = len(attack_preds)
+    
+    attack_types = list(set([p.attack_category for p in attack_preds if p.attack_category not in ["BENIGN", "Normal"]]))
+    ports_accessed = list(set([f.destination_port for f in flows]))[:10]
+    protocols_used = list(set([f.protocol for f in flows]))
+    
+    # Calculate Threat Score & Level
+    if total_connections > 0:
+        threat_score = min(100.0, round((attack_count / total_connections) * 100.0 + min(50, attack_count * 12), 1))
+    else:
+        threat_score = 5.0
+        
+    if threat_score > 75.0:
+        threat_level = "CRITICAL"
+    elif threat_score > 50.0:
+        threat_level = "HIGH"
+    elif threat_score > 20.0:
+        threat_level = "MEDIUM"
+    else:
+        threat_level = "LOW"
+        
+    # Generate tailors recommendations
+    rec_actions = []
+    if threat_level in ["CRITICAL", "HIGH"]:
+        rec_actions.append(f"Immediately block traffic from Source IP {src_ip} on edge firewall")
+        rec_actions.append(f"Inspect Destination IP {dst_ip} services for vulnerability exploitation")
+        rec_actions.append("Initiate SOC Incident Response Playbook #04 (Active Threat Mitigation)")
+    else:
+        rec_actions.append(f"Monitor traffic between {src_ip} and {dst_ip} for anomaly spikes")
+        rec_actions.append("Maintain routine firewall logging and intrusion prevention rules")
+
+    html_content = build_ip_incident_email_html(
+        source_ip=src_ip,
+        destination_ip=dst_ip,
+        threat_score=threat_score,
+        threat_level=threat_level,
+        total_connections=total_connections,
+        attack_count=attack_count,
+        attack_types=attack_types,
+        ports_accessed=ports_accessed,
+        protocols_used=protocols_used,
+        recommended_actions=rec_actions,
+        notes=req.notes,
+        generated_by=f"{current_user.full_name} ({current_user.role})"
+    )
+    
+    subject = req.subject or f"🛡️ NIDS Incident Report: {src_ip} ➔ {dst_ip} [{threat_level}]"
+    
+    dispatch_result = send_email_dispatch(
+        recipient_email=req.recipient_email,
+        subject=subject,
+        html_content=html_content
+    )
+    
+    return dispatch_result
+

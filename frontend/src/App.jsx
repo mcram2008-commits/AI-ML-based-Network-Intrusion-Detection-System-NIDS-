@@ -43,7 +43,7 @@ export function App() {
       <AuthProvider>
         <Routes>
           {/* Public Authentication & Landing Routes */}
-          <Route path="/" element={<LandingPage />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />

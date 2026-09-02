@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import client from '../api/client';
-import { Globe, Search, ShieldAlert, Activity, Clock, Server } from 'lucide-react';
+import { Globe, Search, ShieldAlert, Activity, Clock, Server, Mail } from 'lucide-react';
 import ToastNotification from '../components/ToastNotification';
+import SendIPReportModal from '../components/SendIPReportModal';
 
 export const IPInvestigationPage = () => {
   const [ipInput, setIpInput] = useState('185.220.101.5');
   const [ipData, setIpData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
+  const [isMailModalOpen, setIsMailModalOpen] = useState(false);
 
   const fetchIPDetails = async (targetIP) => {
     setLoading(true);
@@ -52,28 +54,45 @@ export const IPInvestigationPage = () => {
         <p className="text-slate-400 text-xs mt-1">Deep forensic telemetry, historical connection timeline, and threat score assessment</p>
       </div>
 
-      {/* Search Input Bar */}
-      <div className="glass-panel p-4 rounded-xl flex items-center gap-3 max-w-xl">
-        <form onSubmit={handleSearch} className="flex items-center gap-3 w-full">
-          <div className="relative flex-1">
-            <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500"><Search size={16} /></span>
-            <input
-              type="text"
-              value={ipInput}
-              onChange={(e) => setIpInput(e.target.value)}
-              placeholder="Enter IP address e.g. 185.220.101.5"
-              className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-lg transition-colors border border-blue-400/30 flex items-center gap-1.5"
-          >
-            {loading ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> : 'Investigate'}
-          </button>
-        </form>
+      {/* Search & Email Action Bar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        <div className="glass-panel p-4 rounded-xl flex items-center gap-3 max-w-xl flex-1">
+          <form onSubmit={handleSearch} className="flex items-center gap-3 w-full">
+            <div className="relative flex-1">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500"><Search size={16} /></span>
+              <input
+                type="text"
+                value={ipInput}
+                onChange={(e) => setIpInput(e.target.value)}
+                placeholder="Enter IP address e.g. 185.220.101.5"
+                className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-lg transition-colors border border-blue-400/30 flex items-center gap-1.5"
+            >
+              {loading ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> : 'Investigate'}
+            </button>
+          </form>
+        </div>
+
+        <button
+          onClick={() => setIsMailModalOpen(true)}
+          className="px-4 py-3 bg-indigo-600/90 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl border border-indigo-400/40 shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all"
+        >
+          <Mail size={16} />
+          <span>Dispatch IP Incident Email Report</span>
+        </button>
       </div>
+
+      <SendIPReportModal
+        isOpen={isMailModalOpen}
+        onClose={() => setIsMailModalOpen(false)}
+        initialSourceIp={ipData?.ip_address || ipInput || '185.220.101.5'}
+        initialDestinationIp={ipData?.destination_ips?.[0] || '10.0.0.1'}
+      />
 
       {/* IP Telemetry Summary */}
       {ipData && (

@@ -21,3 +21,6 @@ frontend/.vite/
 .idea/
 .DS_Store
 *.log
+.env
+backend/.env
+

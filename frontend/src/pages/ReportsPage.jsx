@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import client from '../api/client';
-import { FileText, Download, Printer, ShieldCheck, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { FileText, Download, Printer, ShieldCheck, CheckCircle2, AlertTriangle, Mail } from 'lucide-react';
 import ToastNotification from '../components/ToastNotification';
+import SendIPReportModal from '../components/SendIPReportModal';
 
 export const ReportsPage = () => {
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
+  const [isMailModalOpen, setIsMailModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -23,7 +25,7 @@ export const ReportsPage = () => {
   }, []);
 
   const handleExportCSV = () => {
-    window.open('http://localhost:8000/api/reports/export/csv', '_blank');
+    window.open('http://127.0.0.1:8000/api/reports/export/csv', '_blank');
   };
 
   const handlePrintPDF = () => {
@@ -57,6 +59,14 @@ export const ReportsPage = () => {
 
         <div className="flex items-center gap-3">
           <button
+            onClick={() => setIsMailModalOpen(true)}
+            className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-2 transition-all border border-indigo-400/30 shadow-lg shadow-indigo-600/20"
+          >
+            <Mail size={16} />
+            <span>Send Incident Email</span>
+          </button>
+
+          <button
             onClick={handleExportCSV}
             className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-2 transition-all border border-blue-400/30 shadow-lg shadow-blue-600/20"
           >
@@ -73,6 +83,13 @@ export const ReportsPage = () => {
           </button>
         </div>
       </div>
+
+      <SendIPReportModal
+        isOpen={isMailModalOpen}
+        onClose={() => setIsMailModalOpen(false)}
+        initialSourceIp="185.220.101.5"
+        initialDestinationIp="10.0.0.1"
+      />
 
       {/* Printable Report Document Card */}
       <div className="glass-card p-8 rounded-2xl border border-slate-800 space-y-6 shadow-2xl text-slate-200 print:text-black print:bg-white print:p-0">

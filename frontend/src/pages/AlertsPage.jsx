@@ -50,7 +50,7 @@ export const AlertsPage = () => {
   };
 
   const handleExportCSV = () => {
-    window.open('http://localhost:8000/api/reports/export/csv', '_blank');
+    window.open('http://127.0.0.1:8000/api/reports/export/csv', '_blank');
   };
 
   const canEdit = hasRole(['Admin', 'Security Analyst']);

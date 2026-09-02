@@ -64,16 +64,22 @@ export const RegisterPage = () => {
       });
       setToast({ type: 'success', message: 'Account registered successfully! Redirecting to login...' });
       setTimeout(() => {
-        navigate('/login');
-      }, 400);
+        navigate('/login', { state: { message: 'Account registered successfully! Please log in with your credentials.' } });
+      }, 1000);
     } catch (err) {
       let msg = err.response?.data?.detail;
       if (Array.isArray(msg)) {
-        msg = msg.map(item => (typeof item === 'string' ? item : item.msg || item.message || JSON.stringify(item))).join('. ');
+        msg = msg.map(item => {
+          if (typeof item === 'string') return item;
+          const fieldName = item.loc && item.loc.length > 0 ? item.loc[item.loc.length - 1] : '';
+          const fieldLabel = fieldName && fieldName !== 'body' ? fieldName.replace('_', ' ') + ': ' : '';
+          const messageText = item.msg || item.message || JSON.stringify(item);
+          return fieldLabel + messageText;
+        }).join('. ');
       } else if (typeof msg === 'object') {
         msg = msg?.msg || msg?.message || JSON.stringify(msg);
       }
-      if (!msg) msg = 'Registration failed. Please check your inputs.';
+      if (!msg) msg = err.message || 'Registration failed. Please check your inputs.';
       setToast({ type: 'error', message: msg });
     } finally {
       setLoading(false);

@@ -1,8 +1,13 @@
 import datetime
 import uuid
 import jwt
+import bcrypt
 from passlib.context import CryptContext
 from app.config import settings
+
+# Fix passlib compatibility with bcrypt >= 4.0
+if not hasattr(bcrypt, "__about__"):
+    bcrypt.__about__ = type('about', (), {'__version__': getattr(bcrypt, '__version__', '4.0.0')})
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

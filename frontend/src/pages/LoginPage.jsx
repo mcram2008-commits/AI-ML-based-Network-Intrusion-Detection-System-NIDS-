@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Shield, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react';
@@ -18,6 +18,12 @@ export const LoginPage = () => {
   const [toast, setToast] = useState(null);
 
   const from = location.state?.from?.pathname || '/dashboard';
+
+  useEffect(() => {
+    if (location.state?.message) {
+      setToast({ type: 'success', message: location.state.message });
+    }
+  }, [location.state]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,6 +70,36 @@ export const LoginPage = () => {
           </div>
           <h2 className="text-2xl font-bold text-white tracking-tight">SOC Portal Login</h2>
           <p className="text-slate-400 text-xs mt-1">Authenticate to access Network Intrusion Detection System</p>
+        </div>
+
+        {/* Quick Fill Demo Accounts */}
+        <div className="mb-6 p-3 bg-slate-900/60 border border-slate-800 rounded-xl">
+          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+            <span>Quick Fill Demo Presets:</span>
+          </div>
+          <div className="grid grid-cols-3 gap-1.5">
+            <button
+              type="button"
+              onClick={() => { setUsernameOrEmail('admin'); setPassword('Admin123!'); }}
+              className="py-1.5 px-2 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-400 text-xs font-medium rounded-lg transition-colors text-center"
+            >
+              👑 Admin
+            </button>
+            <button
+              type="button"
+              onClick={() => { setUsernameOrEmail('analyst'); setPassword('Analyst123!'); }}
+              className="py-1.5 px-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-medium rounded-lg transition-colors text-center"
+            >
+              🛡️ Analyst
+            </button>
+            <button
+              type="button"
+              onClick={() => { setUsernameOrEmail('viewer'); setPassword('Viewer123!'); }}
+              className="py-1.5 px-2 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-400 text-xs font-medium rounded-lg transition-colors text-center"
+            >
+              👁️ Viewer
+            </button>
+          </div>
         </div>
 
         {/* Form */}

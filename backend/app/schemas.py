@@ -180,3 +180,21 @@ class SystemSettingsUpdate(BaseModel):
     active_model_id: Optional[int] = None
     refresh_interval_sec: int = 3
     demo_mode: bool = True
+
+# Email Report Schemas
+class IPReportEmailRequest(BaseModel):
+    source_ip: str
+    destination_ip: str
+    recipient_email: EmailStr
+    notes: Optional[str] = None
+    subject: Optional[str] = None
+
+class IPReportEmailResponse(BaseModel):
+    success: bool
+    status: str
+    simulated: bool
+    message: str
+    recipient: str
+    dispatched_at: str
+    html_preview: str
+
