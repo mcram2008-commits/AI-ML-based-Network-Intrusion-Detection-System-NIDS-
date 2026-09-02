@@ -198,3 +198,65 @@ class IPReportEmailResponse(BaseModel):
     dispatched_at: str
     html_preview: str
 
+# 1. Notification Schemas
+class NotificationSettingsUpdate(BaseModel):
+    slack_webhook_url: Optional[str] = ""
+    discord_webhook_url: Optional[str] = ""
+    webhook_enabled: bool = False
+    min_severity_trigger: str = "HIGH"  # LOW, MEDIUM, HIGH, CRITICAL
+
+class NotificationSettingsOut(BaseModel):
+    slack_webhook_url: str = ""
+    discord_webhook_url: str = ""
+    webhook_enabled: bool = False
+    min_severity_trigger: str = "HIGH"
+
+class TestWebhookRequest(BaseModel):
+    webhook_url: str
+    provider: str = "slack"  # slack, discord, custom
+
+# 2. Firewall Rule Schemas
+class FirewallRuleRequest(BaseModel):
+    source_ip: str
+    target_syntax: str = "iptables"  # iptables, snort, suricata, csv
+    action: str = "DROP"  # DROP, REJECT, LOG
+    custom_comment: Optional[str] = None
+
+class FirewallRuleResponse(BaseModel):
+    source_ip: str
+    target_syntax: str
+    generated_rule: str
+    filename: str
+    description: str
+
+# 3. Simulator Schemas
+class SimulatorStartRequest(BaseModel):
+    attack_preset: str = "DoS/DDoS"  # DoS/DDoS, Port Scan, Brute Force, Mixed
+    packets_per_sec: int = 5
+    target_ip: str = "10.0.0.1"
+
+class SimulatorStatusResponse(BaseModel):
+    is_running: bool
+    attack_preset: str
+    packets_per_sec: int
+    total_flows_generated: int
+    active_target_ip: str
+
+# 4. AI Advisor Schemas
+class AiAdvisorRequest(BaseModel):
+    attack_type: str
+    severity: str = "HIGH"
+    source_ip: Optional[str] = "185.220.101.5"
+    destination_ip: Optional[str] = "10.0.0.1"
+    confidence: Optional[float] = 95.0
+
+class AiAdvisorResponse(BaseModel):
+    attack_type: str
+    severity: str
+    threat_overview: str
+    risk_impact: str
+    immediate_actions: list[str]
+    long_term_mitigation: list[str]
+    recommended_firewall_command: str
+
+

@@ -9,7 +9,8 @@ from app.ml.trainer import generate_synthetic_dataset, train_and_eval_model
 
 from app.routers import (
     auth, users, datasets, models, predict,
-    dashboard, alerts, ip_analysis, attacks, reports, settings as settings_router
+    dashboard, alerts, ip_analysis, attacks, reports, settings as settings_router,
+    notifications, firewall, simulator, advisor
 )
 
 app = FastAPI(
@@ -48,6 +49,11 @@ app.include_router(ip_analysis.router, prefix=settings.API_PREFIX)
 app.include_router(attacks.router, prefix=settings.API_PREFIX)
 app.include_router(reports.router, prefix=settings.API_PREFIX)
 app.include_router(settings_router.router, prefix=settings.API_PREFIX)
+app.include_router(notifications.router, prefix=settings.API_PREFIX)
+app.include_router(firewall.router, prefix=settings.API_PREFIX)
+app.include_router(simulator.router, prefix=settings.API_PREFIX)
+app.include_router(advisor.router, prefix=settings.API_PREFIX)
+
 
 
 @app.on_event("startup")

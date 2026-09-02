@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import client from '../api/client';
 import { useAuth } from '../context/AuthContext';
-import { Bell, Search, Filter, CheckCircle2, ShieldAlert, Download, Edit3 } from 'lucide-react';
+import { Bell, Search, Filter, CheckCircle2, ShieldAlert, Download, Edit3, Bot, Shield } from 'lucide-react';
 import ToastNotification from '../components/ToastNotification';
+import FirewallRuleModal from '../components/FirewallRuleModal';
+import AiRemediationDrawer from '../components/AiRemediationDrawer';
 
 export const AlertsPage = () => {
   const { user, hasRole } = useAuth();
@@ -16,6 +18,9 @@ export const AlertsPage = () => {
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [newStatus, setNewStatus] = useState('');
   const [toast, setToast] = useState(null);
+
+  const [firewallIp, setFirewallIp] = useState(null);
+  const [advisorAlert, setAdvisorAlert] = useState(null);
 
   const fetchAlerts = async () => {
     try {
@@ -98,10 +103,10 @@ export const AlertsPage = () => {
             className="px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-300 focus:outline-none"
           >
             <option value="">All Severities</option>
-            <option value="LOW">LOW</option>
-            <option value="MEDIUM">MEDIUM</option>
-            <option value="HIGH">HIGH</option>
-            <option value="CRITICAL">CRITICAL</option>
+            <option value="CRITICAL">Critical</option>
+            <option value="HIGH">High</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="LOW">Low</option>
           </select>
 
           <select
@@ -116,35 +121,37 @@ export const AlertsPage = () => {
             <option value="False Positive">False Positive</option>
           </select>
         </div>
-
-        <div className="text-xs text-slate-400 font-mono">
-          Total Alerts: <span className="text-amber-400 font-bold">{alerts.length}</span>
-        </div>
       </div>
 
       {/* Alerts Table */}
-      <div className="glass-card rounded-xl border border-slate-800 overflow-hidden shadow-2xl">
+      <div className="glass-card rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-900/90 text-slate-400 uppercase tracking-wider font-mono text-[10px] border-b border-slate-800">
-              <tr>
-                <th className="px-4 py-3">Alert ID</th>
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-semibold uppercase tracking-wider">
+                <th className="px-4 py-3">Alert Code</th>
                 <th className="px-4 py-3">Timestamp</th>
-                <th className="px-4 py-3">Source IP : Port</th>
-                <th className="px-4 py-3">Dest IP : Port</th>
+                <th className="px-4 py-3">Source IP</th>
+                <th className="px-4 py-3">Destination IP</th>
                 <th className="px-4 py-3">Attack Type</th>
                 <th className="px-4 py-3">Confidence</th>
                 <th className="px-4 py-3">Severity</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Description</th>
-                <th className="px-4 py-3 text-right">Action</th>
+                <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60 font-mono">
-              {alerts.length === 0 ? (
+              {loading ? (
                 <tr>
-                  <td colSpan={10} className="px-6 py-12 text-center text-slate-500">
-                    No security alerts found matching filter criteria.
+                  <td colSpan="10" className="px-4 py-8 text-center text-slate-500 font-sans">
+                    Loading security alerts...
+                  </td>
+                </tr>
+              ) : alerts.length === 0 ? (
+                <tr>
+                  <td colSpan="10" className="px-4 py-8 text-center text-slate-500 font-sans">
+                    No security alerts found.
                   </td>
                 </tr>
               ) : (
@@ -181,18 +188,36 @@ export const AlertsPage = () => {
                     <td className="px-4 py-3 text-slate-400 text-[11px] truncate max-w-[220px]" title={a.description}>
                       {a.description}
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      {canEdit ? (
+                    <td className="px-4 py-3 text-right font-sans">
+                      <div className="flex items-center justify-end gap-1.5">
                         <button
-                          onClick={() => { setSelectedAlert(a); setNewStatus(a.status); }}
-                          className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-blue-400 text-[11px] font-sans border border-slate-700 transition-colors inline-flex items-center gap-1"
+                          onClick={() => setAdvisorAlert(a)}
+                          title="Get AI Remediation Advice"
+                          className="px-2 py-1 rounded bg-purple-950/60 hover:bg-purple-900 text-purple-300 text-[11px] border border-purple-800/60 transition-colors inline-flex items-center gap-1"
                         >
-                          <Edit3 size={12} />
-                          <span>Triage</span>
+                          <Bot size={12} />
+                          <span>AI Playbook</span>
                         </button>
-                      ) : (
-                        <span className="text-[10px] text-slate-600">Read-Only</span>
-                      )}
+
+                        <button
+                          onClick={() => setFirewallIp(a.source_ip)}
+                          title="Generate Firewall Rule"
+                          className="px-2 py-1 rounded bg-cyan-950/60 hover:bg-cyan-900 text-cyan-300 text-[11px] border border-cyan-800/60 transition-colors inline-flex items-center gap-1"
+                        >
+                          <Shield size={12} />
+                          <span>Rule</span>
+                        </button>
+
+                        {canEdit && (
+                          <button
+                            onClick={() => { setSelectedAlert(a); setNewStatus(a.status); }}
+                            className="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-blue-400 text-[11px] border border-slate-700 transition-colors inline-flex items-center gap-1"
+                          >
+                            <Edit3 size={12} />
+                            <span>Triage</span>
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -201,6 +226,19 @@ export const AlertsPage = () => {
           </table>
         </div>
       </div>
+
+      {/* Modals & Drawers */}
+      <FirewallRuleModal
+        isOpen={Boolean(firewallIp)}
+        onClose={() => setFirewallIp(null)}
+        sourceIp={firewallIp}
+      />
+
+      <AiRemediationDrawer
+        isOpen={Boolean(advisorAlert)}
+        onClose={() => setAdvisorAlert(null)}
+        alertData={advisorAlert}
+      />
 
       {/* Triage Status Modal */}
       {selectedAlert && (
@@ -211,10 +249,10 @@ export const AlertsPage = () => {
               Triage Incident: {selectedAlert.alert_code}
             </h3>
 
-            <div className="space-y-2 text-xs text-slate-300 bg-slate-950/60 p-3 rounded-lg border border-slate-800">
-              <div><span className="text-slate-500">Attack Type:</span> <strong className="text-red-400">{selectedAlert.attack_type}</strong></div>
-              <div><span className="text-slate-500">Source Host:</span> {selectedAlert.source_ip}</div>
-              <div><span className="text-slate-500">Target Host:</span> {selectedAlert.destination_ip}:{selectedAlert.destination_port}</div>
+            <div className="space-y-2 text-xs text-slate-300 bg-slate-950/60 p-3 rounded-lg border border-slate-800 font-mono">
+              <div><span className="text-slate-500 font-sans">Attack Type:</span> <strong className="text-red-400">{selectedAlert.attack_type}</strong></div>
+              <div><span className="text-slate-500 font-sans">Source Host:</span> {selectedAlert.source_ip}</div>
+              <div><span className="text-slate-500 font-sans">Target Host:</span> {selectedAlert.destination_ip}:{selectedAlert.destination_port}</div>
             </div>
 
             <div>

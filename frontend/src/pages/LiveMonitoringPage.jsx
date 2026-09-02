@@ -3,6 +3,8 @@ import client from '../api/client';
 import { Activity, Play, Pause, RefreshCw, Filter, Search, ShieldAlert, ArrowUpRight } from 'lucide-react';
 import ToastNotification from '../components/ToastNotification';
 
+import SimulatorControlWidget from '../components/SimulatorControlWidget';
+
 export const LiveMonitoringPage = () => {
   const [flows, setFlows] = useState([]);
   const [isStreaming, setIsStreaming] = useState(true);
@@ -115,6 +117,9 @@ export const LiveMonitoringPage = () => {
           </button>
         </div>
       </div>
+
+      {/* Traffic Simulator Controls */}
+      <SimulatorControlWidget />
 
       {/* Filters Toolbar */}
       <div className="glass-panel p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">

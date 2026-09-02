@@ -4,12 +4,15 @@ import { Globe, Search, ShieldAlert, Activity, Clock, Server, Mail } from 'lucid
 import ToastNotification from '../components/ToastNotification';
 import SendIPReportModal from '../components/SendIPReportModal';
 
+import FirewallRuleModal from '../components/FirewallRuleModal';
+
 export const IPInvestigationPage = () => {
   const [ipInput, setIpInput] = useState('185.220.101.5');
   const [ipData, setIpData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
   const [isMailModalOpen, setIsMailModalOpen] = useState(false);
+  const [isFirewallModalOpen, setIsFirewallModalOpen] = useState(false);
 
   const fetchIPDetails = async (targetIP) => {
     setLoading(true);
@@ -54,7 +57,7 @@ export const IPInvestigationPage = () => {
         <p className="text-slate-400 text-xs mt-1">Deep forensic telemetry, historical connection timeline, and threat score assessment</p>
       </div>
 
-      {/* Search & Email Action Bar */}
+      {/* Search & Action Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
         <div className="glass-panel p-4 rounded-xl flex items-center gap-3 max-w-xl flex-1">
           <form onSubmit={handleSearch} className="flex items-center gap-3 w-full">
@@ -78,14 +81,30 @@ export const IPInvestigationPage = () => {
           </form>
         </div>
 
-        <button
-          onClick={() => setIsMailModalOpen(true)}
-          className="px-4 py-3 bg-indigo-600/90 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl border border-indigo-400/40 shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all"
-        >
-          <Mail size={16} />
-          <span>Dispatch IP Incident Email Report</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsFirewallModalOpen(true)}
+            className="px-4 py-3 bg-cyan-600/90 hover:bg-cyan-500 text-white text-xs font-semibold rounded-xl border border-cyan-400/40 shadow-lg shadow-cyan-600/20 flex items-center justify-center gap-2 transition-all"
+          >
+            <ShieldAlert size={16} />
+            <span>Generate Firewall Rule</span>
+          </button>
+
+          <button
+            onClick={() => setIsMailModalOpen(true)}
+            className="px-4 py-3 bg-indigo-600/90 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl border border-indigo-400/40 shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all"
+          >
+            <Mail size={16} />
+            <span>Dispatch Incident Email</span>
+          </button>
+        </div>
       </div>
+
+      <FirewallRuleModal
+        isOpen={isFirewallModalOpen}
+        onClose={() => setIsFirewallModalOpen(false)}
+        sourceIp={ipData?.ip_address || ipInput || '185.220.101.5'}
+      />
 
       <SendIPReportModal
         isOpen={isMailModalOpen}
