@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Shield, LogOut, User, Bell, ChevronDown } from 'lucide-react';
+import { Shield, LogOut, User, Bell, ChevronDown, Sparkles } from 'lucide-react';
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
@@ -10,6 +10,10 @@ export const Navbar = () => {
   const handleLogout = async () => {
     await logout();
     navigate('/login');
+  };
+
+  const handleToggleAiCopilot = () => {
+    window.dispatchEvent(new CustomEvent('toggle-aegis-ai-copilot'));
   };
 
   if (!user) return null;
@@ -29,6 +33,15 @@ export const Navbar = () => {
 
       {/* Right Actions */}
       <div className="flex items-center gap-4">
+        {/* Ask Aegis AI Button */}
+        <button
+          onClick={handleToggleAiCopilot}
+          className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-600/20 to-purple-600/20 hover:from-blue-600/30 hover:to-purple-600/30 border border-blue-500/30 text-blue-300 text-xs font-semibold flex items-center gap-2 transition-all shadow-sm"
+        >
+          <Sparkles size={15} className="text-purple-400 animate-pulse" />
+          <span>Ask Aegis AI</span>
+        </button>
+
         {/* User Info & Quick Actions */}
         <div className="flex items-center gap-3 pl-3 border-l border-slate-800">
           <Link

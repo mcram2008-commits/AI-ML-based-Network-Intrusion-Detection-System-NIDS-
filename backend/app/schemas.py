@@ -94,6 +94,8 @@ class DatasetOut(BaseModel):
 
 # ML Model Schemas
 class ModelTrainRequest(BaseModel):
+    model_config = {"protected_namespaces": ()}
+
     dataset_id: int
     algorithm: str  # Random Forest, Decision Tree, Logistic Regression, Support Vector Machine, XGBoost, Neural Network
     model_name: Optional[str] = None

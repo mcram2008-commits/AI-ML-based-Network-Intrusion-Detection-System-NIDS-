@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard, Activity, Search, Bell, BarChart2,
-  Globe, Database, Cpu, FileText, Users, Settings, UserCheck, Shield
+  Globe, Navigation, Database, Cpu, FileText, Users, Settings, UserCheck, Shield
 } from 'lucide-react';
 
 export const Sidebar = () => {
@@ -17,6 +17,7 @@ export const Sidebar = () => {
     { label: 'Alerts Management', path: '/alerts', icon: Bell, roles: ['Admin', 'Security Analyst'] },
     { label: 'Attack Analytics', path: '/analytics', icon: BarChart2, roles: ['Admin', 'Security Analyst', 'Viewer'] },
     { label: 'IP Investigation', path: '/ip-investigation', icon: Globe, roles: ['Admin', 'Security Analyst'] },
+    { label: 'Smart Route Finder', path: '/route-optimization', icon: Navigation, roles: ['Admin', 'Security Analyst'] },
     { label: 'Datasets', path: '/datasets', icon: Database, roles: ['Admin', 'Security Analyst'] },
     { label: 'ML Models', path: '/models', icon: Cpu, roles: ['Admin', 'Security Analyst'] },
     { label: 'Security Reports', path: '/reports', icon: FileText, roles: ['Admin', 'Security Analyst', 'Viewer'] },

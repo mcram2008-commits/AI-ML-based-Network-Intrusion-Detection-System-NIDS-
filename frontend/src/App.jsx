@@ -18,12 +18,14 @@ import IntrusionDetectionPage from './pages/IntrusionDetectionPage';
 import AlertsPage from './pages/AlertsPage';
 import AttackAnalyticsPage from './pages/AttackAnalyticsPage';
 import IPInvestigationPage from './pages/IPInvestigationPage';
+import RouteOptimizationPage from './pages/RouteOptimizationPage';
 import DatasetsPage from './pages/DatasetsPage';
 import MLModelsPage from './pages/MLModelsPage';
 import ReportsPage from './pages/ReportsPage';
 import UserManagementPage from './pages/UserManagementPage';
 import SettingsPage from './pages/SettingsPage';
 import ProfilePage from './pages/ProfilePage';
+import AiCopilotWidget from './components/AiCopilotWidget';
 
 const ProtectedLayout = ({ children }) => (
   <div className="flex min-h-screen bg-[#070A12] text-slate-100 font-sans">
@@ -33,6 +35,7 @@ const ProtectedLayout = ({ children }) => (
       <main className="flex-1 p-2 sm:p-4 overflow-y-auto">
         {children}
       </main>
+      <AiCopilotWidget />
     </div>
   </div>
 );
@@ -95,6 +98,14 @@ export function App() {
             element={
               <ProtectedRoute allowedRoles={['Admin', 'Security Analyst']}>
                 <ProtectedLayout><IPInvestigationPage /></ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/route-optimization"
+            element={
+              <ProtectedRoute allowedRoles={['Admin', 'Security Analyst']}>
+                <ProtectedLayout><RouteOptimizationPage /></ProtectedLayout>
               </ProtectedRoute>
             }
           />
