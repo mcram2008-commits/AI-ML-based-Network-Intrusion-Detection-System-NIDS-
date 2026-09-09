@@ -1,9 +1,15 @@
+import re
+from typing import Optional, List, Dict, Any
+from pydantic import BaseModel
 from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.database import get_db
 from app.schemas import AiAdvisorRequest, AiAdvisorResponse
-from app.models import User
+from app.models import User, NetworkFlow, Prediction, Alert
 from app.auth.deps import get_current_user
 
 router = APIRouter(prefix="/advisor", tags=["AI Security Advisor"])
+
 
 @router.post("/remediation", response_model=AiAdvisorResponse)
 def get_ai_remediation_advice(
@@ -83,6 +89,105 @@ def get_ai_remediation_advice(
         long_term_mitigation=long_term,
         recommended_firewall_command=fw_cmd
     )
+
+class PlaybookRequest(BaseModel):
+    attack_type: str
+    source_ip: str
+    destination_ip: str = "10.0.0.1"
+    severity: str = "HIGH"
+    confidence: float = 95.0
+
+class PlaybookResponse(BaseModel):
+    title: str
+    attack_type: str
+    source_ip: str
+    severity: str
+    nist_stage: str
+    summary: str
+    threat_matrix: Dict[str, Any]
+    containment_cli: List[Dict[str, str]]
+    investigation_steps: List[str]
+    remediation_actions: List[str]
+
+@router.post("/playbook", response_model=PlaybookResponse)
+def generate_ai_incident_playbook(
+    payload: PlaybookRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """Generate NIST-800-61 aligned AI Incident Response Playbook for a detected threat"""
+    atk = payload.attack_type.upper()
+    src = payload.source_ip
+    dst = payload.destination_ip
+    
+    title = f"AI SOC Incident Playbook — {payload.attack_type} ({src})"
+    nist_stage = "Stage 2: Containment, Eradication & Recovery (NIST SP 800-61 Rev. 2)"
+
+    if "DOS" in atk or "DDOS" in atk:
+        summary = f"High-volume Denial of Service attack detected from {src}. The attacker is flooding target endpoint {dst} to exhaust network bandwidth and connection buffers."
+        matrix = {"CVSS_Score": 8.6, "Vector": "Network / Unauthenticated", "Impact_Level": "CRITICAL - Service Interruption"}
+        cli_cmds = [
+            {"label": "Windows Firewall (Netsh)", "command": f"netsh advfirewall firewall add rule name=\"AEGIS_BLOCK_{src.replace('.','_')}\" dir=in action=block remoteip={src}"},
+            {"label": "Linux Netfilter (Iptables)", "command": f"iptables -A INPUT -s {src} -p tcp --syn -j DROP"},
+            {"label": "Snort IPS Signature Rule", "command": f"drop ip {src} any -> $HOME_NET any (msg:\"AEGIS SOAR - DoS Drop Rule for {src}\"; sid:1000888;)"}
+        ]
+        investigation = [
+            f"1. Query netstat/ss state table on target host {dst} for SYN_RECV connections.",
+            f"2. Inspect border router bandwidth utilization logs for IP {src}.",
+            "3. Verify Web Application Firewall rate-limiting policy execution."
+        ]
+        remediation = [
+            "Apply immediate host firewall block rule via AEGIS SOAR One-Click Action.",
+            "Deploy Cloudflare / AWS Shield DDoS scrubbing protection for public IP subnets.",
+            "Enable TCP SYN Cookies on target host Linux kernel (`sysctl -w net.ipv4.tcp_syncookies=1`)."
+        ]
+    elif "BRUTE FORCE" in atk or "SSH" in atk or "PASSWORD" in atk:
+        summary = f"Automated Credential Guessing / Brute Force intrusion detected from {src} targeting authentication services on {dst}."
+        matrix = {"CVSS_Score": 7.8, "Vector": "Network / High Frequency Auth", "Impact_Level": "HIGH - Risk of Account Takeover"}
+        cli_cmds = [
+            {"label": "Windows Firewall (Netsh)", "command": f"netsh advfirewall firewall add rule name=\"AEGIS_BLOCK_{src.replace('.','_')}\" dir=in action=block remoteip={src}"},
+            {"label": "Linux Netfilter (Iptables)", "command": f"iptables -A INPUT -s {src} -p tcp --dport 22 -j DROP"},
+            {"label": "Fail2Ban Configuration", "command": f"fail2ban-client set sshd banip {src}"}
+        ]
+        investigation = [
+            f"1. Audit authentication audit logs (`/var/log/auth.log` or Event ID 4625) for target accounts hit by {src}.",
+            "2. Verify if any authentication attempt returned HTTP 200 OK / Success.",
+            "3. Check Threat Intelligence feeds for IP reputation scoring."
+        ]
+        remediation = [
+            f"Execute AEGIS One-Click Auto-Mitigation to shun {src}.",
+            "Enforce Multi-Factor Authentication (MFA) across all remote access services.",
+            "Enforce account lockout after 5 consecutive failed login attempts."
+        ]
+    else:
+        summary = f"Network Anomaly / Malicious Flow Signature ({payload.attack_type}) detected from {src} directed at {dst}."
+        matrix = {"CVSS_Score": 7.2, "Vector": "Network Anomaly", "Impact_Level": "MEDIUM-HIGH - SOC Analyst Action Required"}
+        cli_cmds = [
+            {"label": "Windows Firewall (Netsh)", "command": f"netsh advfirewall firewall add rule name=\"AEGIS_BLOCK_{src.replace('.','_')}\" dir=in action=block remoteip={src}"},
+            {"label": "Linux Netfilter (Iptables)", "command": f"iptables -A INPUT -s {src} -j DROP"}
+        ]
+        investigation = [
+            f"1. Capture raw PCAP payload bytes between {src} and {dst}.",
+            "2. Inspect payload string headers for shellcode or web exploit signatures.",
+            "3. Run endpoint malware scan on target host."
+        ]
+        remediation = [
+            f"Quarantine IP {src} via OS Firewall drop rule.",
+            "Retrain AEGIS Random Forest classifier with newly captured flow sample."
+        ]
+
+    return PlaybookResponse(
+        title=title,
+        attack_type=payload.attack_type,
+        source_ip=src,
+        severity=payload.severity,
+        nist_stage=nist_stage,
+        summary=summary,
+        threat_matrix=matrix,
+        containment_cli=cli_cmds,
+        investigation_steps=investigation,
+        remediation_actions=remediation
+    )
+
 
 # Conversational AI Copilot Chat Endpoint
 import re

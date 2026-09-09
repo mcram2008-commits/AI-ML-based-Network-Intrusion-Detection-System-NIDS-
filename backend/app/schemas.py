@@ -204,18 +204,25 @@ class IPReportEmailResponse(BaseModel):
 class NotificationSettingsUpdate(BaseModel):
     slack_webhook_url: Optional[str] = ""
     discord_webhook_url: Optional[str] = ""
+    telegram_bot_token: Optional[str] = ""
+    telegram_chat_id: Optional[str] = ""
     webhook_enabled: bool = False
     min_severity_trigger: str = "HIGH"  # LOW, MEDIUM, HIGH, CRITICAL
 
 class NotificationSettingsOut(BaseModel):
     slack_webhook_url: str = ""
     discord_webhook_url: str = ""
+    telegram_bot_token: str = ""
+    telegram_chat_id: str = ""
     webhook_enabled: bool = False
     min_severity_trigger: str = "HIGH"
 
 class TestWebhookRequest(BaseModel):
-    webhook_url: str
-    provider: str = "slack"  # slack, discord, custom
+    webhook_url: Optional[str] = ""
+    telegram_bot_token: Optional[str] = ""
+    telegram_chat_id: Optional[str] = ""
+    provider: str = "slack"  # slack, discord, telegram, custom
+
 
 # 2. Firewall Rule Schemas
 class FirewallRuleRequest(BaseModel):

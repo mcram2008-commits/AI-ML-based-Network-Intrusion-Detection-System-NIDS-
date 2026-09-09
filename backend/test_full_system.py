@@ -131,9 +131,55 @@ def run_tests():
     rep_summary = res_rep.json()
     print(f"   [SUCCESS] Security Audit Summary generated for {rep_summary['generated_by']}.")
 
+    # 12. Test SOAR Auto-Mitigation OS Firewall Execution
+    print("\n12. Testing SOAR Host OS Firewall Auto-Mitigation...")
+    res_soar = requests.post(f"{BASE_URL}/firewall/execute-block", headers=analyst_headers, json={
+        "source_ip": "185.220.101.5", "reason": "System Test SOAR Block Execution"
+    })
+    assert res_soar.status_code == 200, f"SOAR Block failed: {res_soar.text}"
+    soar_data = res_soar.json()
+    assert soar_data["status"] == "BLOCKED"
+    print(f"   [SUCCESS] SOAR Rule Executed for {soar_data['source_ip']} on {soar_data['platform']}. Command: `{soar_data['command_executed']}`")
+
+    res_active = requests.get(f"{BASE_URL}/firewall/active-rules", headers=admin_headers)
+    assert res_active.status_code == 200
+    print(f"   [SUCCESS] Active SOAR Block Rules List: {len(res_active.json())} rules active.")
+
+    # 13. Test Scapy Real Packet Sniffer Interfaces & Status
+    print("\n13. Testing Real Scapy Network Packet Sniffer Engine...")
+    res_ifaces = requests.get(f"{BASE_URL}/sniffer/interfaces", headers=admin_headers)
+    assert res_ifaces.status_code == 200
+    ifaces = res_ifaces.json()
+    assert len(ifaces) > 0, "Network adapters list should not be empty"
+    print(f"   [SUCCESS] Discovered {len(ifaces)} local network adapters. Primary: {ifaces[0]['name']}")
+
+    res_sniff_status = requests.get(f"{BASE_URL}/sniffer/status", headers=admin_headers)
+    assert res_sniff_status.status_code == 200
+    sniff_st = res_sniff_status.json()
+    print(f"   [SUCCESS] Live Packet Sniffer Status: Running={sniff_st['is_running']} | Adapter={sniff_st['active_interface']}")
+
+    # 14. Test AI Incident Response Playbook Generator
+    print("\n14. Testing AI Incident Response Playbook Engine...")
+    res_playbook = requests.post(f"{BASE_URL}/advisor/playbook", headers=analyst_headers, json={
+        "attack_type": "DoS/DDoS", "source_ip": "185.220.101.5", "destination_ip": "10.0.0.1", "severity": "CRITICAL"
+    })
+    assert res_playbook.status_code == 200, f"Playbook generation failed: {res_playbook.text}"
+    playbook_data = res_playbook.json()
+    assert len(playbook_data["containment_cli"]) > 0
+    print(f"   [SUCCESS] Playbook Generated: '{playbook_data['title']}' | Containment Commands={len(playbook_data['containment_cli'])} | NIST Stage: {playbook_data['nist_stage']}")
+
+    # 15. Test Telegram Bot Webhook Notification Service
+    print("\n15. Testing Telegram & Webhook Alert Notification Service...")
+    res_tele = requests.post(f"{BASE_URL}/notifications/test", headers=admin_headers, json={
+        "provider": "telegram", "telegram_bot_token": "123456789:TEST_BOT_TOKEN", "telegram_chat_id": "-100123456789"
+    })
+    assert res_tele.status_code == 200
+    print(f"   [SUCCESS] Telegram Bot Test Notification Dispatched.")
+
     print("\n=======================================================")
-    print(" ALL 11 VERIFICATION TESTS PASSED SUCCESSFULLY! ")
+    print(" ALL 15 END-TO-END SYSTEM VERIFICATION TESTS PASSED! ")
     print("=======================================================\n")
 
 if __name__ == "__main__":
     run_tests()
+

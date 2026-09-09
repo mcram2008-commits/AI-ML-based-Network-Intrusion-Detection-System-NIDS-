@@ -4,8 +4,10 @@ import { Activity, Play, Pause, RefreshCw, Filter, Search, ShieldAlert, ArrowUpR
 import ToastNotification from '../components/ToastNotification';
 
 import SimulatorControlWidget from '../components/SimulatorControlWidget';
+import RealSnifferWidget from '../components/RealSnifferWidget';
 
 export const LiveMonitoringPage = () => {
+
   const [flows, setFlows] = useState([]);
   const [isStreaming, setIsStreaming] = useState(true);
   const [severityFilter, setSeverityFilter] = useState('');
@@ -118,8 +120,12 @@ export const LiveMonitoringPage = () => {
         </div>
       </div>
 
+      {/* Real Packet Capture Controls */}
+      <RealSnifferWidget />
+
       {/* Traffic Simulator Controls */}
       <SimulatorControlWidget />
+
 
       {/* Filters Toolbar */}
       <div className="glass-panel p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">

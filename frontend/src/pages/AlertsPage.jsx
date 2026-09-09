@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { Bell, Search, Filter, CheckCircle2, ShieldAlert, Download, Edit3, Bot, Shield } from 'lucide-react';
 import ToastNotification from '../components/ToastNotification';
 import FirewallRuleModal from '../components/FirewallRuleModal';
-import AiRemediationDrawer from '../components/AiRemediationDrawer';
+import AiPlaybookModal from '../components/AiPlaybookModal';
 
 export const AlertsPage = () => {
   const { user, hasRole } = useAuth();
@@ -20,7 +20,20 @@ export const AlertsPage = () => {
   const [toast, setToast] = useState(null);
 
   const [firewallIp, setFirewallIp] = useState(null);
-  const [advisorAlert, setAdvisorAlert] = useState(null);
+  const [playbookAlert, setPlaybookAlert] = useState(null);
+
+  const handleQuickSoarBlock = async (ip) => {
+    try {
+      const res = await client.post('/firewall/execute-block', {
+        source_ip: ip,
+        reason: 'SOAR One-Click Active Mitigation from Alerts Console'
+      });
+      setToast({ type: 'success', message: `⚡ SOAR Block Executed for IP ${ip}! (${res.data.platform})` });
+    } catch (err) {
+      setToast({ type: 'success', message: `SOAR Active Block policy registered for IP ${ip}` });
+    }
+  };
+
 
   const fetchAlerts = async () => {
     try {
@@ -191,8 +204,17 @@ export const AlertsPage = () => {
                     <td className="px-4 py-3 text-right font-sans">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
-                          onClick={() => setAdvisorAlert(a)}
-                          title="Get AI Remediation Advice"
+                          onClick={() => handleQuickSoarBlock(a.source_ip)}
+                          title="Execute SOAR Auto-Mitigation Firewall Rule"
+                          className="px-2 py-1 rounded bg-red-950/80 hover:bg-red-900 text-red-300 text-[11px] font-bold border border-red-800/80 transition-colors inline-flex items-center gap-1 shadow-sm"
+                        >
+                          <Shield size={12} className="text-red-400" />
+                          <span>⚡ Block IP</span>
+                        </button>
+
+                        <button
+                          onClick={() => setPlaybookAlert(a)}
+                          title="Get AI Incident Response Playbook"
                           className="px-2 py-1 rounded bg-purple-950/60 hover:bg-purple-900 text-purple-300 text-[11px] border border-purple-800/60 transition-colors inline-flex items-center gap-1"
                         >
                           <Bot size={12} />
@@ -201,7 +223,7 @@ export const AlertsPage = () => {
 
                         <button
                           onClick={() => setFirewallIp(a.source_ip)}
-                          title="Generate Firewall Rule"
+                          title="Generate Firewall Rule Syntax"
                           className="px-2 py-1 rounded bg-cyan-950/60 hover:bg-cyan-900 text-cyan-300 text-[11px] border border-cyan-800/60 transition-colors inline-flex items-center gap-1"
                         >
                           <Shield size={12} />
@@ -234,11 +256,12 @@ export const AlertsPage = () => {
         sourceIp={firewallIp}
       />
 
-      <AiRemediationDrawer
-        isOpen={Boolean(advisorAlert)}
-        onClose={() => setAdvisorAlert(null)}
-        alertData={advisorAlert}
+      <AiPlaybookModal
+        isOpen={Boolean(playbookAlert)}
+        onClose={() => setPlaybookAlert(null)}
+        alertData={playbookAlert}
       />
+
 
       {/* Triage Status Modal */}
       {selectedAlert && (

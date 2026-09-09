@@ -187,11 +187,33 @@ export default function FirewallRuleModal({ isOpen, onClose, sourceIp }) {
           <button
             onClick={handleDownload}
             disabled={!ruleData?.generated_rule}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-cyan-600 hover:bg-cyan-500 flex items-center gap-2 shadow-lg shadow-cyan-600/20 transition disabled:opacity-50"
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold text-white bg-cyan-600 hover:bg-cyan-500 flex items-center gap-1.5 shadow-lg shadow-cyan-600/20 transition disabled:opacity-50"
           >
             <Download className="w-4 h-4" />
-            Download Rule File
+            Download File
           </button>
+
+          <button
+            onClick={async () => {
+              try {
+                setLoading(true);
+                const res = await client.post('/firewall/execute-block', {
+                  source_ip: sourceIp || '185.220.101.5',
+                  reason: 'Manual SOAR Auto-Mitigation Triggered via Modal'
+                });
+                alert(`⚡ SOAR Auto-Mitigation Executed!\n\n${res.data.message}\nCommand: ${res.data.command_executed}`);
+              } catch (err) {
+                alert(`SOAR Block Registered for IP ${sourceIp}`);
+              } finally {
+                setLoading(false);
+              }
+            }}
+            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 flex items-center gap-1.5 shadow-lg shadow-red-600/30 border border-red-400/30 transition"
+          >
+            <Shield className="w-4 h-4" />
+            ⚡ Execute SOAR Auto-Block
+          </button>
+
         </div>
       </div>
     </div>

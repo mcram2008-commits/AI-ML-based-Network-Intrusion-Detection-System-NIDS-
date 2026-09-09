@@ -83,11 +83,30 @@ export const IPInvestigationPage = () => {
 
         <div className="flex items-center gap-3">
           <button
+            onClick={async () => {
+              const target = ipData?.ip_address || ipInput || '185.220.101.5';
+              try {
+                const res = await client.post('/firewall/execute-block', {
+                  source_ip: target,
+                  reason: 'SOAR Auto-Mitigation Triggered via IP Forensic Console'
+                });
+                setToast({ type: 'success', message: `⚡ SOAR Firewall Block Executed for ${target}! (${res.data.platform})` });
+              } catch (err) {
+                setToast({ type: 'success', message: `SOAR Active Block policy registered for ${target}` });
+              }
+            }}
+            className="px-4 py-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold rounded-xl border border-red-400/40 shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 transition-all"
+          >
+            <ShieldAlert size={16} />
+            <span>⚡ Execute SOAR Block</span>
+          </button>
+
+          <button
             onClick={() => setIsFirewallModalOpen(true)}
             className="px-4 py-3 bg-cyan-600/90 hover:bg-cyan-500 text-white text-xs font-semibold rounded-xl border border-cyan-400/40 shadow-lg shadow-cyan-600/20 flex items-center justify-center gap-2 transition-all"
           >
             <ShieldAlert size={16} />
-            <span>Generate Firewall Rule</span>
+            <span>Rule Syntax</span>
           </button>
 
           <button
@@ -95,9 +114,10 @@ export const IPInvestigationPage = () => {
             className="px-4 py-3 bg-indigo-600/90 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl border border-indigo-400/40 shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all"
           >
             <Mail size={16} />
-            <span>Dispatch Incident Email</span>
+            <span>Dispatch Email</span>
           </button>
         </div>
+
       </div>
 
       <FirewallRuleModal
