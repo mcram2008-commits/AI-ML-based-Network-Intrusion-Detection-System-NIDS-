@@ -176,10 +176,23 @@ def run_tests():
     assert res_tele.status_code == 200
     print(f"   [SUCCESS] Telegram Bot Test Notification Dispatched.")
 
+    # 16. Test Adversarial ML Stress Test & Model Hardening
+    print("\n16. Testing Adversarial ML Evasion Stress Test & Model Hardening...")
+    res_adv_eval = requests.post(f"{BASE_URL}/adversarial/evaluate", headers=analyst_headers, json={"noise_level": 0.15})
+    assert res_adv_eval.status_code == 200, f"Adversarial eval failed: {res_adv_eval.text}"
+    adv_res = res_adv_eval.json()
+    print(f"   [SUCCESS] Adversarial Stress Test: Clean Acc={adv_res['clean_accuracy']}% | Adv Acc={adv_res['adversarial_accuracy']}% | Robustness Score={adv_res['robustness_score']}/100 ({adv_res['hardening_grade']})")
+
+    res_adv_harden = requests.post(f"{BASE_URL}/adversarial/harden", headers=analyst_headers, json={"algorithm": "Random Forest"})
+    assert res_adv_harden.status_code == 200, f"Adversarial hardening failed: {res_adv_harden.text}"
+    harden_res = res_adv_harden.json()
+    print(f"   [SUCCESS] Hardened Model Retrained: {harden_res['message']} (Accuracy: {harden_res['accuracy']}%)")
+
     print("\n=======================================================")
-    print(" ALL 15 END-TO-END SYSTEM VERIFICATION TESTS PASSED! ")
+    print(" ALL 16 END-TO-END SYSTEM VERIFICATION TESTS PASSED! ")
     print("=======================================================\n")
 
 if __name__ == "__main__":
     run_tests()
+
 

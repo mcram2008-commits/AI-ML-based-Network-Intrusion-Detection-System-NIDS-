@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import client from '../api/client';
 import { Cpu, Play, CheckCircle2, Award, Activity, BarChart2 } from 'lucide-react';
 import ToastNotification from '../components/ToastNotification';
+import AdversarialBenchWidget from '../components/AdversarialBenchWidget';
 
 export const MLModelsPage = () => {
+
   const [models, setModels] = useState([]);
   const [datasets, setDatasets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -140,7 +142,11 @@ export const MLModelsPage = () => {
         </form>
       </div>
 
+      {/* Adversarial ML & Model Hardening Suite */}
+      <AdversarialBenchWidget onModelHardened={fetchData} />
+
       {/* Leaderboard Table */}
+
       <div className="space-y-4">
         <h2 className="text-lg font-bold text-white">Trained Model Performance Leaderboard ({models.length})</h2>
 
