@@ -269,3 +269,38 @@ class AiAdvisorResponse(BaseModel):
     recommended_firewall_command: str
 
 
+# 5. Playbook Schemas
+class PlaybookCreate(BaseModel):
+    name: str = Field(..., min_length=3, max_length=100)
+    description: Optional[str] = None
+    trigger_severity: str = "CRITICAL"  # CRITICAL, HIGH, ALL
+    min_threat_score: float = 70.0
+    attack_type: str = "ANY"
+    action: str = "BLOCK_IP"  # BLOCK_IP, CREATE_ALERT, NOTIFY_TEAM, ISOLATE_SUBNET
+    is_active: bool = True
+
+class PlaybookOut(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+    trigger_severity: str
+    min_threat_score: float
+    attack_type: str
+    action: str
+    is_active: bool
+    execution_count: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class PlaybookLogOut(BaseModel):
+    id: int
+    playbook_id: int
+    source_ip: str
+    action_taken: str
+    details: Optional[str] = None
+    timestamp: datetime
+
+    class Config:
+        from_attributes = True

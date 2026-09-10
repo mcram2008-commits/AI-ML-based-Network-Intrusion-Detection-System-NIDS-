@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard, Activity, Search, Bell, BarChart2,
-  Globe, Navigation, Database, Cpu, FileText, Users, Settings, UserCheck, Shield
+  Globe, Navigation, Database, Cpu, FileText, Users, Settings, UserCheck, Shield, Zap, Network
 } from 'lucide-react';
 
 export const Sidebar = () => {
@@ -15,6 +15,8 @@ export const Sidebar = () => {
     { label: 'Live Monitoring', path: '/monitoring', icon: Activity, roles: ['Admin', 'Security Analyst'] },
     { label: 'Intrusion Detection', path: '/detection', icon: Search, roles: ['Admin', 'Security Analyst'] },
     { label: 'Alerts Management', path: '/alerts', icon: Bell, roles: ['Admin', 'Security Analyst'] },
+    { label: 'SOAR Playbooks', path: '/playbooks', icon: Zap, roles: ['Admin', 'Security Analyst'] },
+    { label: 'Topology & GeoMap', path: '/network-topology', icon: Network, roles: ['Admin', 'Security Analyst', 'Viewer'] },
     { label: 'Attack Analytics', path: '/analytics', icon: BarChart2, roles: ['Admin', 'Security Analyst', 'Viewer'] },
     { label: 'IP Investigation', path: '/ip-investigation', icon: Globe, roles: ['Admin', 'Security Analyst'] },
     { label: 'Smart Route Finder', path: '/route-optimization', icon: Navigation, roles: ['Admin', 'Security Analyst'] },
@@ -25,6 +27,7 @@ export const Sidebar = () => {
     { label: 'System Settings', path: '/settings', icon: Settings, roles: ['Admin'] },
     { label: 'User Profile', path: '/profile', icon: UserCheck, roles: ['Admin', 'Security Analyst', 'Viewer'] },
   ];
+
 
   return (
     <aside className="w-64 bg-[#0B0F19] border-r border-slate-800/80 flex flex-col justify-between hidden md:flex h-screen sticky top-0 z-20">

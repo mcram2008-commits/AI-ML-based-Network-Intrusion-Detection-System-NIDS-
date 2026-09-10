@@ -25,7 +25,10 @@ import ReportsPage from './pages/ReportsPage';
 import UserManagementPage from './pages/UserManagementPage';
 import SettingsPage from './pages/SettingsPage';
 import ProfilePage from './pages/ProfilePage';
+import PlaybooksPage from './pages/PlaybooksPage';
+import NetworkTopologyPage from './pages/NetworkTopologyPage';
 import AiCopilotWidget from './components/AiCopilotWidget';
+
 
 const ProtectedLayout = ({ children }) => (
   <div className="flex min-h-screen bg-[#070A12] text-slate-100 font-sans">
@@ -85,6 +88,23 @@ export function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/playbooks"
+            element={
+              <ProtectedRoute allowedRoles={['Admin', 'Security Analyst']}>
+                <ProtectedLayout><PlaybooksPage /></ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/network-topology"
+            element={
+              <ProtectedRoute allowedRoles={['Admin', 'Security Analyst', 'Viewer']}>
+                <ProtectedLayout><NetworkTopologyPage /></ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="/analytics"
             element={

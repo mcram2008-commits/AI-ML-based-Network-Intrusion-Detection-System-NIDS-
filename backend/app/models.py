@@ -149,3 +149,34 @@ class SystemLog(Base):
     user_id = Column(Integer, nullable=True)
     action = Column(String(100), nullable=False)
     details = Column(Text, nullable=True)
+
+
+class Playbook(Base):
+    __tablename__ = "playbooks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    description = Column(Text, nullable=True)
+    trigger_severity = Column(String(20), default="CRITICAL")  # CRITICAL, HIGH, ALL
+    min_threat_score = Column(Float, default=70.0)
+    attack_type = Column(String(50), default="ANY")
+    action = Column(String(50), nullable=False)  # BLOCK_IP, CREATE_ALERT, NOTIFY_TEAM, ISOLATE_SUBNET
+    is_active = Column(Boolean, default=True)
+    execution_count = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    logs = relationship("PlaybookLog", back_populates="playbook", cascade="all, delete-orphan")
+
+
+class PlaybookLog(Base):
+    __tablename__ = "playbook_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    playbook_id = Column(Integer, ForeignKey("playbooks.id", ondelete="CASCADE"), nullable=False)
+    source_ip = Column(String(45), nullable=False)
+    action_taken = Column(String(100), nullable=False)
+    details = Column(Text, nullable=True)
+    timestamp = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+
+    playbook = relationship("Playbook", back_populates="logs")
+

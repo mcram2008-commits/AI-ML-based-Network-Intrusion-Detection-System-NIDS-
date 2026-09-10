@@ -10,7 +10,8 @@ from app.ml.trainer import generate_synthetic_dataset, train_and_eval_model
 from app.routers import (
     auth, users, datasets, models, predict,
     dashboard, alerts, ip_analysis, attacks, reports, settings as settings_router,
-    notifications, firewall, simulator, advisor, route_optimization, live_sniffer, adversarial
+    notifications, firewall, simulator, advisor, route_optimization, live_sniffer, adversarial,
+    playbooks, topology
 )
 
 app = FastAPI(
@@ -56,6 +57,9 @@ app.include_router(advisor.router, prefix=settings.API_PREFIX)
 app.include_router(route_optimization.router, prefix=settings.API_PREFIX)
 app.include_router(live_sniffer.router, prefix=settings.API_PREFIX)
 app.include_router(adversarial.router, prefix=settings.API_PREFIX)
+app.include_router(playbooks.router, prefix=settings.API_PREFIX)
+app.include_router(topology.router, prefix=settings.API_PREFIX)
+
 
 
 
