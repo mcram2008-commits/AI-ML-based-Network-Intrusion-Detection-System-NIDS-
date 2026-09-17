@@ -273,16 +273,22 @@ export const SendIPReportModal = ({
               </div>
 
               {/* Rendered HTML Email Preview inside sandboxed Container */}
-              <div className="border border-slate-800 rounded-xl overflow-hidden bg-black">
+              <div className="border border-slate-800 rounded-xl overflow-hidden bg-slate-950">
                 <div className="bg-slate-900 px-4 py-2 border-b border-slate-800 text-xs text-slate-400 flex items-center justify-between font-mono">
                   <span>To: {dispatchResult.recipient}</span>
                   <span>HTML Mail Render</span>
                 </div>
-                <iframe
-                  title="Security Email Report Preview"
-                  srcDoc={dispatchResult.html_preview}
-                  className="w-full h-[400px] border-0"
-                />
+                {dispatchResult.html_preview ? (
+                  <iframe
+                    title="Security Email Report Preview"
+                    srcDoc={dispatchResult.html_preview}
+                    className="w-full h-[400px] border-0 bg-white"
+                  />
+                ) : (
+                  <div className="p-8 text-center text-slate-400 text-xs font-mono">
+                    Report dispatch completed, but preview HTML was empty.
+                  </div>
+                )}
               </div>
             </div>
           )}

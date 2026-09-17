@@ -9,23 +9,40 @@ export const ForgotPasswordPage = () => {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
   const [demoLink, setDemoLink] = useState(null);
+  const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || !email.trim()) {
+      setToast({ type: 'warning', message: 'Please enter a valid registered email address.' });
+      return;
+    }
 
     setLoading(true);
+    setDemoLink(null);
+    setCopied(false);
     try {
-      const res = await client.post('/auth/forgot-password', { email });
+      const res = await client.post('/auth/forgot-password', { email: email.trim() });
       setToast({ type: 'success', message: res.data.message });
       if (res.data.demo_reset_link) {
         setDemoLink(res.data.demo_reset_link);
       }
     } catch (err) {
-      setToast({ type: 'error', message: 'Failed to request password reset' });
+      setToast({ type: 'error', message: 'Failed to request password reset link.' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fullResetUrl = demoLink ? `${window.location.origin}${demoLink}` : '';
+
+  const handleCopyLink = () => {
+    if (fullResetUrl) {
+      navigator.clipboard.writeText(fullResetUrl);
+      setCopied(true);
+      setToast({ type: 'success', message: 'Reset password URL copied to clipboard!' });
+      setTimeout(() => setCopied(false), 3000);
     }
   };
 
@@ -50,16 +67,37 @@ export const ForgotPasswordPage = () => {
 
         {demoLink ? (
           <div className="space-y-4 text-center">
-            <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs">
-              <p className="font-semibold mb-2">Reset link generated successfully!</p>
-              <p className="text-slate-400 text-[11px] mb-3">For evaluation purposes, you can immediately proceed using the generated token link below:</p>
-              <button
-                onClick={() => navigate(demoLink)}
-                className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-xs transition-colors flex items-center justify-center gap-2"
-              >
-                <span>Proceed to Reset Password</span>
-                <ArrowRight size={14} />
-              </button>
+            <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs space-y-3">
+              <p className="font-semibold text-emerald-300">Reset link generated successfully!</p>
+              <p className="text-slate-400 text-[11px]">Copy the secret link below or click to proceed directly to reset password:</p>
+              
+              <div className="p-2.5 bg-slate-950/80 border border-slate-800 rounded-lg text-left font-mono text-[11px] text-slate-300 break-all select-all flex items-center justify-between gap-2">
+                <span className="truncate">{fullResetUrl}</span>
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-semibold rounded border border-slate-700 transition-colors shrink-0"
+                >
+                  {copied ? 'Copied!' : 'Copy Link'}
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-2 pt-1">
+                <button
+                  onClick={() => navigate(demoLink)}
+                  className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-xs transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>Proceed to Reset Password</span>
+                  <ArrowRight size={14} />
+                </button>
+
+                <button
+                  onClick={() => { setDemoLink(null); setEmail(''); }}
+                  className="w-full py-1.5 px-3 text-slate-400 hover:text-slate-200 text-[11px] transition-colors"
+                >
+                  Reset for another email
+                </button>
+              </div>
             </div>
           </div>
         ) : (
