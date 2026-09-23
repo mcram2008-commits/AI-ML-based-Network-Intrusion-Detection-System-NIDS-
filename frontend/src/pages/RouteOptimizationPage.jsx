@@ -10,8 +10,10 @@ import ToastNotification from '../components/ToastNotification';
 export const RouteOptimizationPage = () => {
   const [senderContact, setSenderContact] = useState('+91-9876543210');
   const [senderLocation, setSenderLocation] = useState('Namakkal, Tamil Nadu, India');
+  const [senderIp, setSenderIp] = useState('');
   const [receiverContact, setReceiverContact] = useState('+1-555-0199');
   const [receiverLocation, setReceiverLocation] = useState('New York, USA');
+  const [receiverIp, setReceiverIp] = useState('');
 
   const [analysis, setAnalysis] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -27,6 +29,41 @@ export const RouteOptimizationPage = () => {
   const [dispatchResult, setDispatchResult] = useState(null);
   const [activeTab, setActiveTab] = useState('form'); // 'form' | 'preview'
 
+  const fetchRealSenderIp = async () => {
+    setToast({ type: 'info', message: 'Fetching real public IP address...' });
+    try {
+      const res = await fetch('https://api.ipify.org?format=json');
+      const data = await res.json();
+      if (data.ip) {
+        setSenderIp(data.ip);
+        setToast({ type: 'success', message: `Real Public IP Detected: ${data.ip}` });
+        return data.ip;
+      }
+    } catch {
+      try {
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+        if (data.ip) {
+          setSenderIp(data.ip);
+          setToast({ type: 'success', message: `Real Public IP Detected: ${data.ip}` });
+          return data.ip;
+        }
+      } catch {}
+    }
+    return null;
+  };
+
+  const fetchRealReceiverIp = async () => {
+    try {
+      const res = await fetch('https://api.ipify.org?format=json');
+      const data = await res.json();
+      if (data.ip) {
+        setReceiverIp(data.ip);
+        setToast({ type: 'success', message: `Public IP auto-detected: ${data.ip}` });
+      }
+    } catch {}
+  };
+
   const handleAnalyze = async (e) => {
     if (e) e.preventDefault();
     if (!senderContact || !senderLocation || !receiverContact || !receiverLocation) {
@@ -40,7 +77,9 @@ export const RouteOptimizationPage = () => {
         sender_contact: senderContact,
         sender_location: senderLocation,
         receiver_contact: receiverContact,
-        receiver_location: receiverLocation
+        receiver_location: receiverLocation,
+        sender_ip_override: senderIp.trim() || undefined,
+        receiver_ip_override: receiverIp.trim() || undefined
       });
       setAnalysis(res.data);
       if (res.data?.best_route) {
@@ -165,6 +204,7 @@ export const RouteOptimizationPage = () => {
   };
 
   useEffect(() => {
+    fetchRealSenderIp();
     handleAnalyze();
   }, []);
 
@@ -248,12 +288,21 @@ export const RouteOptimizationPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Sender Column */}
             <div className="space-y-3 bg-slate-900/40 p-4 rounded-lg border border-slate-800/60">
-              <div className="flex items-center gap-2 text-blue-400 font-semibold text-sm">
-                <Radio size={18} className="animate-pulse" /> SENDER ENDPOINT DETAILS
+              <div className="flex items-center justify-between text-blue-400 font-semibold text-sm">
+                <div className="flex items-center gap-2">
+                  <Radio size={18} className="animate-pulse" /> SENDER ENDPOINT DETAILS
+                </div>
+                <button
+                  type="button"
+                  onClick={fetchRealSenderIp}
+                  className="text-xs bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 px-2.5 py-1 rounded border border-blue-500/30 font-mono transition-all flex items-center gap-1"
+                >
+                  🌐 Fetch My Real IP
+                </button>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-[11px] font-medium text-slate-400 mb-1">Sender Contact Number</label>
+                  <label className="block text-[11px] font-medium text-slate-400 mb-1">Contact Number</label>
                   <input
                     type="text"
                     value={senderContact}
@@ -263,27 +312,7 @@ export const RouteOptimizationPage = () => {
                   />
                 </div>
                 <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-[11px] font-medium text-slate-400">Sender Location / City</label>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={handleGPSLocationSender}
-                        className="text-[10px] text-emerald-400 hover:underline font-mono flex items-center gap-0.5"
-                        title="Detect real device GPS / IP location"
-                      >
-                        <MapPin size={11} /> GPS
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleAutoDetectSender}
-                        className="text-[10px] text-blue-400 hover:underline font-mono"
-                        title="Detect region from phone number"
-                      >
-                        ⚡ Phone
-                      </button>
-                    </div>
-                  </div>
+                  <label className="block text-[11px] font-medium text-slate-400 mb-1">Location / Region</label>
                   <input
                     type="text"
                     value={senderLocation}
@@ -292,53 +321,66 @@ export const RouteOptimizationPage = () => {
                     className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-blue-500"
                   />
                 </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-[11px] font-medium text-slate-400">Sender Real IP Address</label>
+                  </div>
+                  <input
+                    type="text"
+                    value={senderIp}
+                    onChange={(e) => setSenderIp(e.target.value)}
+                    placeholder="e.g. 157.48.20.15 (Auto-detecting...)"
+                    className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs font-mono text-emerald-300 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
               </div>
             </div>
 
             {/* Receiver Column */}
             <div className="space-y-3 bg-slate-900/40 p-4 rounded-lg border border-slate-800/60">
-              <div className="flex items-center gap-2 text-purple-400 font-semibold text-sm">
-                <Server size={18} /> RECEIVER ENDPOINT DETAILS
+              <div className="flex items-center justify-between text-purple-400 font-semibold text-sm">
+                <div className="flex items-center gap-2">
+                  <Server size={18} /> RECEIVER ENDPOINT DETAILS
+                </div>
+                <button
+                  type="button"
+                  onClick={fetchRealReceiverIp}
+                  className="text-xs bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 px-2.5 py-1 rounded border border-purple-500/30 font-mono transition-all flex items-center gap-1"
+                >
+                  🌐 Auto-Detect IP
+                </button>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-[11px] font-medium text-slate-400 mb-1">Receiver Contact Number</label>
+                  <label className="block text-[11px] font-medium text-slate-400 mb-1">Contact Number</label>
                   <input
                     type="text"
                     value={receiverContact}
                     onChange={(e) => setReceiverContact(e.target.value)}
                     placeholder="+1-555-0199"
-                    className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-purple-500"
                   />
                 </div>
                 <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block text-[11px] font-medium text-slate-400">Receiver Location / City</label>
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={handleGPSLocationReceiver}
-                        className="text-[10px] text-emerald-400 hover:underline font-mono flex items-center gap-0.5"
-                        title="Detect real device GPS / IP location"
-                      >
-                        <MapPin size={11} /> GPS
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleAutoDetectReceiver}
-                        className="text-[10px] text-purple-400 hover:underline font-mono"
-                        title="Detect region from phone number"
-                      >
-                        ⚡ Phone
-                      </button>
-                    </div>
-                  </div>
+                  <label className="block text-[11px] font-medium text-slate-400 mb-1">Location / Region</label>
                   <input
                     type="text"
                     value={receiverLocation}
                     onChange={(e) => setReceiverLocation(e.target.value)}
-                    placeholder="e.g. New York, USA or Namakkal, India"
-                    className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-blue-500"
+                    placeholder="e.g. New York, USA"
+                    className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-[11px] font-medium text-slate-400">Receiver IP Address</label>
+                  </div>
+                  <input
+                    type="text"
+                    value={receiverIp}
+                    onChange={(e) => setReceiverIp(e.target.value)}
+                    placeholder="e.g. 198.51.100.45"
+                    className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs font-mono text-purple-300 focus:outline-none focus:border-purple-500"
                   />
                 </div>
               </div>
