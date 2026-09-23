@@ -1,6 +1,7 @@
 import datetime
 import random
 import hashlib
+import re
 from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr, Field
@@ -74,42 +75,158 @@ def _generate_ip_from_string(seed_str: str, default_prefix: str = "185") -> str:
     return f"{b1}.{b2}.{b3}.{b4}"
 
 def _infer_location_from_phone(contact: str) -> str:
-    clean_contact = contact.replace(" ", "").replace("-", "").strip()
-    if clean_contact.startswith("+91") or clean_contact.startswith("91"):
-        if "98" in clean_contact or "97" in clean_contact or "94" in clean_contact:
-            return "Chennai, India"
-        elif "91" in clean_contact or "90" in clean_contact or "88" in clean_contact:
-            return "Mumbai, India"
-        elif "80" in clean_contact or "99" in clean_contact:
-            return "Bangalore, India"
-        return "Delhi / NCR, India"
-    elif clean_contact.startswith("+1") or clean_contact.startswith("1"):
-        if "212" in clean_contact or "555" in clean_contact or "917" in clean_contact:
-            return "New York, USA"
-        elif "415" in clean_contact or "650" in clean_contact:
-            return "San Francisco, USA"
-        elif "312" in clean_contact:
-            return "Chicago, USA"
-        return "Washington DC, USA"
-    elif clean_contact.startswith("+44") or clean_contact.startswith("44"):
-        return "London, UK"
-    elif clean_contact.startswith("+65") or clean_contact.startswith("65"):
-        return "Singapore"
-    elif clean_contact.startswith("+49") or clean_contact.startswith("49"):
-        return "Frankfurt, Germany"
-    elif clean_contact.startswith("+81") or clean_contact.startswith("81"):
-        return "Tokyo, Japan"
-    elif clean_contact.startswith("+61") or clean_contact.startswith("61"):
-        return "Sydney, Australia"
-    elif clean_contact.startswith("+971") or clean_contact.startswith("971"):
-        return "Dubai, UAE"
-    elif clean_contact.startswith("+33") or clean_contact.startswith("33"):
-        return "Paris, France"
-    else:
+    if not contact:
         return "International Gateway Region"
 
+    cleaned = re.sub(r"[^\d+]", "", contact.strip())
+    if not cleaned:
+        return "International Gateway Region"
+
+    digits = re.sub(r"\D", "", cleaned)
+    if not digits:
+        return "International Gateway Region"
+
+    is_india = False
+    local_digits = digits
+
+    if cleaned.startswith("+91"):
+        is_india = True
+        local_digits = digits[2:]
+    elif digits.startswith("91") and len(digits) == 12:
+        is_india = True
+        local_digits = digits[2:]
+    elif digits.startswith("0") and len(digits) == 11 and digits[1] in ("6", "7", "8", "9"):
+        is_india = True
+        local_digits = digits[1:]
+    elif len(digits) == 10 and digits[0] in ("6", "7", "8", "9"):
+        is_india = True
+        local_digits = digits
+
+    if is_india and len(local_digits) >= 4:
+        prefix4 = local_digits[:4]
+        
+        # Chennai & Tamil Nadu
+        tn_prefixes = {
+            "9840", "9841", "9884", "9444", "9445", "9790", "9791", "9003", "9094", "9500",
+            "9176", "9600", "9940", "9952", "9894", "9443", "7358", "8056", "6380", "9384",
+            "9361", "9345", "8939", "7200", "7299", "7305", "7397", "7550", "8925", "9025",
+            "9042", "9043", "9080", "9150", "9159", "9360", "9566", "9677", "9710", "9789",
+            "9842", "9843", "9865", "9942", "9943", "9944", "9994"
+        }
+        
+        # Mumbai & Maharashtra
+        mh_prefixes = {
+            "9820", "9821", "9819", "9833", "9869", "9892", "9920", "9930", "9967", "9969",
+            "9769", "9004", "9029", "9167", "9619", "9702", "9773", "9822", "9823", "9850",
+            "9890", "9921", "9922", "9923", "8888", "9152", "9320", "9321", "9322", "9323", "9324"
+        }
+
+        # Bangalore & Karnataka
+        ka_prefixes = {
+            "9844", "9845", "9880", "9886", "9900", "9901", "9902", "9945", "9972", "9980",
+            "9986", "9731", "9740", "9741", "9742", "9008", "9035", "9036", "9141", "9164",
+            "9448", "9449", "9480", "9481", "9482", "9483", "8050", "8088", "8095", "8105",
+            "8123", "8147", "8197", "8792", "8861", "8884", "8970", "8971", "9108", "9110",
+            "9113", "9341", "9342", "9343"
+        }
+
+        # Hyderabad & Telangana / AP
+        ts_prefixes = {
+            "9848", "9849", "9866", "9885", "9908", "9948", "9949", "9959", "9963", "9966",
+            "9989", "9700", "9701", "9703", "9704", "9705", "9000", "9010", "9030", "9032",
+            "9052", "9160", "9177", "9440", "9441", "9490", "9491", "9492", "9493", "9494",
+            "8008", "8019", "8096", "8099", "8106", "8121", "8125", "8142", "8143", "8179",
+            "8184", "8185", "8186", "8187", "8331", "8332", "8333", "8374", "8885", "8886",
+            "8897", "8977", "8978", "9100", "9121", "9133", "9390", "9391", "9392", "9393"
+        }
+
+        # Delhi / NCR
+        dl_prefixes = {
+            "9810", "9811", "9818", "9868", "9871", "9873", "9891", "9899", "9910", "9911",
+            "9953", "9958", "9971", "9990", "9999", "9711", "9716", "9717", "9718", "9013",
+            "9015", "9136", "9212", "9213", "9250", "9268", "9310", "9311", "9312", "9313",
+            "9315", "9350", "9540", "9560", "9582", "9599", "9643", "9650", "9654", "8010",
+            "8130", "8285", "8287", "8373", "8375", "8376", "8377", "8447", "8448", "8527"
+        }
+
+        # Kolkata & West Bengal
+        wb_prefixes = {
+            "9830", "9831", "9836", "9874", "9903", "9007", "9038", "9051", "9088", "9163",
+            "9432", "9433", "9674", "9748", "9804", "8013", "8017", "8240", "8334", "8335",
+            "8336", "8420", "8697", "8961", "8981", "9123", "9330", "9331", "9339"
+        }
+
+        if prefix4 in tn_prefixes:
+            return "Chennai, Tamil Nadu, India"
+        elif prefix4 in mh_prefixes:
+            return "Mumbai, Maharashtra, India"
+        elif prefix4 in ka_prefixes:
+            return "Bangalore, Karnataka, India"
+        elif prefix4 in ts_prefixes:
+            return "Hyderabad, Telangana, India"
+        elif prefix4 in dl_prefixes:
+            return "Delhi / NCR, India"
+        elif prefix4 in wb_prefixes:
+            return "Kolkata, West Bengal, India"
+        
+        # Deterministic hashing fallback for unlisted Indian 10-digit series
+        indian_hubs = [
+            "Chennai, Tamil Nadu, India",
+            "Mumbai, Maharashtra, India",
+            "Bangalore, Karnataka, India",
+            "Hyderabad, Telangana, India",
+            "Delhi / NCR, India",
+            "Kolkata, West Bengal, India",
+            "Pune, Maharashtra, India",
+            "Coimbatore, Tamil Nadu, India",
+            "Kochi, Kerala, India",
+            "Ahmedabad, Gujarat, India"
+        ]
+        num_hash = int(hashlib.md5(local_digits.encode()).hexdigest(), 16)
+        return indian_hubs[num_hash % len(indian_hubs)]
+
+    # International checks
+    if cleaned.startswith("+1") or (len(digits) == 10 and not is_india):
+        us_digits = digits[1:] if digits.startswith("1") else digits
+        area_code = us_digits[:3]
+        if area_code in ("415", "650", "510", "408"):
+            return "San Francisco, USA"
+        elif area_code in ("212", "917", "646", "347", "516", "718"):
+            return "New York, USA"
+        elif area_code in ("312", "773", "847"):
+            return "Chicago, USA"
+        elif area_code in ("202", "703", "301"):
+            return "Washington DC, USA"
+        elif area_code in ("213", "310", "818", "323", "424"):
+            return "Los Angeles, USA"
+        return "New York, USA"
+    elif cleaned.startswith("+44") or digits.startswith("44"):
+        return "London, UK"
+    elif cleaned.startswith("+65") or digits.startswith("65"):
+        return "Singapore"
+    elif cleaned.startswith("+49") or digits.startswith("49"):
+        return "Frankfurt, Germany"
+    elif cleaned.startswith("+81") or digits.startswith("81"):
+        return "Tokyo, Japan"
+    elif cleaned.startswith("+61") or digits.startswith("61"):
+        return "Sydney, Australia"
+    elif cleaned.startswith("+971") or digits.startswith("971"):
+        return "Dubai, UAE"
+    elif cleaned.startswith("+33") or digits.startswith("33"):
+        return "Paris, France"
+
+    return "International Gateway Region"
+
 def _infer_carrier_and_asn(contact: str, location: str) -> Dict[str, str]:
-    if "India" in location or contact.startswith("+91"):
+    if "India" in location or contact.startswith("+91") or contact.startswith("91"):
+        if "Chennai" in location or "Tamil Nadu" in location:
+            return {"carrier": "Airtel / Jio Tamil Nadu Telecom", "asn": "AS45820", "isp": "Bharti Airtel Network"}
+        elif "Mumbai" in location or "Maharashtra" in location:
+            return {"carrier": "Reliance Jio Infocomm", "asn": "AS55836", "isp": "Reliance Jio Mumbai Hub"}
+        elif "Bangalore" in location or "Karnataka" in location:
+            return {"carrier": "Vodafone Idea Karnataka", "asn": "AS55410", "isp": "Vi Business Fiber"}
+        elif "Hyderabad" in location or "Telangana" in location:
+            return {"carrier": "ACT Fibernet / Jio", "asn": "AS24186", "isp": "Atria Convergence Tech"}
         return {"carrier": "Airtel / Jio Enterprise", "asn": "AS45820", "isp": "Bharti Airtel Telecom"}
     elif "USA" in location or "America" in location or contact.startswith("+1"):
         return {"carrier": "Verizon Enterprise", "asn": "AS701", "isp": "Verizon Business Network"}
