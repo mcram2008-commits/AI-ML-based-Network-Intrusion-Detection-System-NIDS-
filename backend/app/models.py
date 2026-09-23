@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, ForeignKey, Text, JSON
+from sqlalchemy import Column, Integer, BigInteger, String, Boolean, DateTime, Float, ForeignKey, Text, JSON, Index
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -77,14 +77,18 @@ class MLModel(Base):
 
 class NetworkFlow(Base):
     __tablename__ = "network_flows"
+    __table_args__ = (
+        Index("idx_flow_src_dst", "source_ip", "destination_ip"),
+        Index("idx_flow_proto_dstport", "protocol", "destination_port"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow, index=True)
     source_ip = Column(String(45), index=True, nullable=False)
     destination_ip = Column(String(45), index=True, nullable=False)
     source_port = Column(Integer, nullable=False)
-    destination_port = Column(Integer, nullable=False)
-    protocol = Column(String(10), nullable=False)
+    destination_port = Column(Integer, index=True, nullable=False)
+    protocol = Column(String(10), index=True, nullable=False)
     packet_count = Column(Integer, nullable=False)
     byte_count = Column(Integer, nullable=False)
     duration = Column(Float, nullable=False)  # flow duration in seconds
@@ -97,14 +101,18 @@ class NetworkFlow(Base):
 
 class Prediction(Base):
     __tablename__ = "predictions"
+    __table_args__ = (
+        Index("idx_pred_pred_sev", "prediction", "threat_severity"),
+        Index("idx_pred_category", "attack_category"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     flow_id = Column(Integer, ForeignKey("network_flows.id", ondelete="CASCADE"), nullable=False)
     model_id = Column(Integer, ForeignKey("models.id", ondelete="SET NULL"), nullable=True)
-    prediction = Column(String(20), nullable=False)  # Normal vs Malicious
-    attack_category = Column(String(50), nullable=False)  # Benign, DoS/DDoS, Port Scan, Brute Force, Botnet, Web Attack, Infiltration
+    prediction = Column(String(20), index=True, nullable=False)  # Normal vs Malicious
+    attack_category = Column(String(50), index=True, nullable=False)  # Benign, DoS/DDoS, Port Scan, Brute Force, Botnet, Web Attack, Infiltration
     confidence = Column(Float, nullable=False)  # percentage e.g. 97.4
-    threat_severity = Column(String(20), nullable=False)  # LOW, MEDIUM, HIGH, CRITICAL
+    threat_severity = Column(String(20), index=True, nullable=False)  # LOW, MEDIUM, HIGH, CRITICAL
     recommended_action = Column(String(255), nullable=False)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow, index=True)
 
@@ -113,6 +121,9 @@ class Prediction(Base):
 
 class Alert(Base):
     __tablename__ = "alerts"
+    __table_args__ = (
+        Index("idx_alert_status_sev", "status", "severity"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     alert_code = Column(String(50), unique=True, index=True, nullable=False)
@@ -130,6 +141,7 @@ class Alert(Base):
     description = Column(Text, nullable=False)
 
     flow = relationship("NetworkFlow", back_populates="alerts")
+
 
 
 class SystemSetting(Base):
@@ -179,4 +191,24 @@ class PlaybookLog(Base):
     timestamp = Column(DateTime, default=datetime.datetime.utcnow, index=True)
 
     playbook = relationship("Playbook", back_populates="logs")
+
+
+class SharedLink(Base):
+    __tablename__ = "shared_links"
+
+    id = Column(Integer, primary_key=True, index=True)
+    token = Column(String(100), unique=True, index=True, nullable=False)
+    title = Column(String(255), nullable=False)
+    payload_json = Column(JSON, nullable=False)
+    passphrase_hash = Column(String(255), nullable=True)
+    mask_pii = Column(Boolean, default=True)
+    expires_at = Column(DateTime, nullable=True)
+    max_views = Column(Integer, nullable=True)
+    view_count = Column(Integer, default=0)
+    file_path = Column(String(500), nullable=True)
+    file_name = Column(String(255), nullable=True)
+    file_size_bytes = Column(BigInteger, nullable=True)
+    destination_ip_lock = Column(String(45), nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
 

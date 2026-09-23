@@ -1,5 +1,8 @@
+import time
 import datetime
-from fastapi import FastAPI
+from collections import defaultdict
+from fastapi import FastAPI, Request, Response, status
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import engine, Base, SessionLocal
@@ -11,8 +14,9 @@ from app.routers import (
     auth, users, datasets, models, predict,
     dashboard, alerts, ip_analysis, attacks, reports, settings as settings_router,
     notifications, firewall, simulator, advisor, route_optimization, live_sniffer, adversarial,
-    playbooks, topology
+    playbooks, topology, secure_share
 )
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -20,6 +24,45 @@ app = FastAPI(
     openapi_url="/api/openapi.json",
     docs_url="/api/docs"
 )
+
+# -------------------------------------------------------------
+# Enterprise Security Hardening: Middleware & Headers
+# -------------------------------------------------------------
+
+# Simple in-memory IP Rate Limiter
+_rate_limit_store = defaultdict(list)  # ip -> list of timestamps
+RATE_LIMIT_WINDOW = 60  # seconds
+MAX_REQUESTS_PER_WINDOW = 30  # max requests per IP on auth routes
+
+@app.middleware("http")
+async def security_and_rate_limit_middleware(request: Request, call_next):
+    # 1. Apply Rate Limiting on sensitive authentication routes
+    path = request.url.path
+    if path.startswith("/api/v1/auth/login") or path.startswith("/api/v1/auth/register") or path.startswith("/api/v1/auth/forgot-password"):
+        client_ip = request.client.host if request.client else "127.0.0.1"
+        now = time.time()
+        # Clean expired timestamps
+        _rate_limit_store[client_ip] = [t for t in _rate_limit_store[client_ip] if now - t < RATE_LIMIT_WINDOW]
+        
+        if len(_rate_limit_store[client_ip]) >= MAX_REQUESTS_PER_WINDOW:
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={"detail": "Too many requests. Please slow down and try again after 60 seconds."}
+            )
+        _rate_limit_store[client_ip].append(now)
+
+    # Execute request
+    response: Response = await call_next(request)
+
+    # 2. Inject Enterprise Security Headers
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;"
+
+    return response
+
 
 # Configure CORS
 app.add_middleware(
@@ -37,6 +80,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Include Routers
 app.include_router(auth.router, prefix=settings.API_PREFIX)
@@ -59,18 +103,34 @@ app.include_router(live_sniffer.router, prefix=settings.API_PREFIX)
 app.include_router(adversarial.router, prefix=settings.API_PREFIX)
 app.include_router(playbooks.router, prefix=settings.API_PREFIX)
 app.include_router(topology.router, prefix=settings.API_PREFIX)
+app.include_router(secure_share.router, prefix=settings.API_PREFIX)
 
 
 
 
 
 
+
+
+from sqlalchemy import text
 
 @app.on_event("startup")
 def startup_event():
     # 1. Initialize Database Tables
     Base.metadata.create_all(bind=engine)
-    
+
+    # 1b. Auto-migrate SQLite schema for shared_links table if missing columns
+    if "sqlite" in settings.DATABASE_URL:
+        try:
+            with engine.connect() as conn:
+                cols = [c[1] for c in conn.execute(text("PRAGMA table_info(shared_links)")).fetchall()]
+                for col_name, col_type in [("file_path", "TEXT"), ("file_name", "TEXT"), ("file_size_bytes", "INTEGER"), ("destination_ip_lock", "TEXT")]:
+                    if col_name not in cols:
+                        conn.execute(text(f"ALTER TABLE shared_links ADD COLUMN {col_name} {col_type}"))
+                conn.commit()
+        except Exception as e:
+            print("--> Migration notice:", e)
+
     db = SessionLocal()
     try:
         # 2. Seed Default Admin User if no users exist

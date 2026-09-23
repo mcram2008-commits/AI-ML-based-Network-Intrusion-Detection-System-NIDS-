@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import client from '../api/client';
 import { Activity, Play, Pause, RefreshCw, Filter, Search, ShieldAlert, ArrowUpRight } from 'lucide-react';
 import ToastNotification from '../components/ToastNotification';
@@ -54,14 +54,17 @@ export const LiveMonitoringPage = () => {
     };
   }, [isStreaming]);
 
-  const filteredFlows = flows.filter(f => {
-    if (severityFilter && f.threat_severity !== severityFilter) return false;
-    if (searchIP) {
-      const s = searchIP.toLowerCase();
-      return f.source_ip.toLowerCase().includes(s) || f.destination_ip.toLowerCase().includes(s);
-    }
-    return true;
-  });
+  const filteredFlows = useMemo(() => {
+    return flows.filter(f => {
+      if (severityFilter && f.threat_severity !== severityFilter) return false;
+      if (searchIP) {
+        const s = searchIP.toLowerCase();
+        return f.source_ip.toLowerCase().includes(s) || f.destination_ip.toLowerCase().includes(s);
+      }
+      return true;
+    });
+  }, [flows, severityFilter, searchIP]);
+
 
   const getSeverityBadge = (sev) => {
     const map = {

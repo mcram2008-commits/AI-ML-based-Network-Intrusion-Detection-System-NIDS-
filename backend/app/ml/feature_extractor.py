@@ -61,7 +61,39 @@ def extract_features_from_dict(flow_data: Dict) -> np.ndarray:
         ack_flag,
         fin_flag
     ]
-    return np.array(vec, dtype=np.float32).reshape(1, -1)
+    return pd.DataFrame([vec], columns=FEATURE_NAMES)
+
+def extract_features_from_batch(flows: List[Dict]) -> pd.DataFrame:
+    """
+    Extracts a pandas DataFrame feature matrix (N, num_features) with column names from a list of flow dictionaries.
+    """
+    rows = []
+    for flow in flows:
+        src_port = float(flow.get("source_port", 80))
+        dst_port = float(flow.get("destination_port", 80))
+        protocol_str = str(flow.get("protocol", "TCP")).upper()
+        proto_num = float(PROTOCOL_MAP.get(protocol_str, 6))
+        
+        pkt_cnt = float(flow.get("packet_count", 10))
+        byte_cnt = float(flow.get("byte_count", 1000))
+        dur = float(flow.get("duration", 1.0))
+        if dur <= 0:
+            dur = 0.001
+            
+        rate = float(flow.get("rate", byte_cnt / dur))
+        avg_pkt_size = byte_cnt / max(1.0, pkt_cnt)
+        
+        syn_flag = float(flow.get("syn_flag", 1 if dst_port in [80, 443, 22] else 0))
+        ack_flag = float(flow.get("ack_flag", 1))
+        fin_flag = float(flow.get("fin_flag", 0))
+        
+        rows.append([
+            src_port, dst_port, proto_num, pkt_cnt, byte_cnt,
+            dur, rate, avg_pkt_size, syn_flag, ack_flag, fin_flag
+        ])
+    return pd.DataFrame(rows, columns=FEATURE_NAMES)
+
+
 
 def preprocess_df(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series, List[str]]:
     """

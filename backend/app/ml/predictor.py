@@ -1,9 +1,9 @@
 import os
 import joblib
 import numpy as np
-from typing import Dict, Any
+from typing import Dict, Any, List
 from app.config import settings
-from app.ml.feature_extractor import extract_features_from_dict
+from app.ml.feature_extractor import extract_features_from_dict, extract_features_from_batch
 
 # Global in-memory cached model pipeline bundle
 _active_model_bundle = None
@@ -107,3 +107,43 @@ def predict_flow(flow_data: Dict[str, Any], model_filepath: str = None) -> Dict[
         "threat_severity": severity,
         "recommended_action": action
     }
+
+def predict_batch_flows(flows_data: List[Dict[str, Any]], model_filepath: str = None) -> List[Dict[str, Any]]:
+    """
+    High-performance batch predictor for processing thousands of network flows simultaneously.
+    """
+    if not flows_data:
+        return []
+        
+    global _active_model_bundle
+    bundle = _active_model_bundle
+    if model_filepath or bundle is None:
+        bundle = load_active_model(model_filepath)
+        
+    if bundle is None:
+        return [predict_flow(f) for f in flows_data]
+        
+    clf = bundle["classifier"]
+    scaler = bundle["scaler"]
+    label_encoder = bundle["label_encoder"]
+    
+    X_mat = extract_features_from_batch(flows_data)
+    X_scaled = scaler.transform(X_mat)
+    probs_matrix = clf.predict_proba(X_scaled)
+    
+    results = []
+    for probs in probs_matrix:
+        pred_idx = np.argmax(probs)
+        category = str(label_encoder.classes_[pred_idx])
+        conf = float(probs[pred_idx] * 100.0)
+        pred = "Normal" if category in ["BENIGN", "Normal"] else "Malicious"
+        severity, action = get_threat_severity_and_action(category, conf)
+        results.append({
+            "prediction": pred,
+            "attack_category": category,
+            "confidence": round(conf, 1),
+            "threat_severity": severity,
+            "recommended_action": action
+        })
+    return results
+

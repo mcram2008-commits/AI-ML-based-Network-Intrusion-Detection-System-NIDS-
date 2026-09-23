@@ -62,3 +62,16 @@ def require_roles(allowed_roles: List[str]):
 require_admin = require_roles(["Admin"])
 require_analyst_or_admin = require_roles(["Admin", "Security Analyst"])
 require_any_user = require_roles(["Admin", "Security Analyst", "Viewer"])
+
+def get_optional_user(
+    request: Request,
+    token: str = Depends(get_token_from_request),
+    db: Session = Depends(get_db)
+) -> User:
+    if not token:
+        return None
+    payload = decode_token(token)
+    if payload is None or not payload.get("sub"):
+        return None
+    return db.query(User).filter(User.id == payload.get("sub")).first()
+

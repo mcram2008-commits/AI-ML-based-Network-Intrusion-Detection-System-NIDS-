@@ -1,3 +1,4 @@
+import time
 import datetime
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -8,8 +9,17 @@ from app.auth.deps import require_any_user
 
 router = APIRouter(prefix="/dashboard", tags=["Dashboard Statistics"])
 
+# Cache variables for high-frequency polling optimization
+_stats_cache = {"data": None, "timestamp": 0}
+_charts_cache = {"data": None, "timestamp": 0}
+CACHE_TTL_SECONDS = 2.0
+
 @router.get("/stats")
 def get_dashboard_stats(db: Session = Depends(get_db), current_user: User = Depends(require_any_user)):
+    now = time.time()
+    if _stats_cache["data"] and (now - _stats_cache["timestamp"] < CACHE_TTL_SECONDS):
+        return _stats_cache["data"]
+
     total_flows = db.query(NetworkFlow).count()
     normal_count = db.query(Prediction).filter(Prediction.prediction == "Normal").count()
     malicious_count = db.query(Prediction).filter(Prediction.prediction == "Malicious").count()
@@ -34,7 +44,7 @@ def get_dashboard_stats(db: Session = Depends(get_db), current_user: User = Depe
         
     recent_attacks = db.query(Alert).filter(Alert.status.in_(["New", "Investigating"])).order_by(Alert.id.desc()).limit(5).all()
     
-    return {
+    res = {
         "total_flows": total_flows,
         "normal_traffic_count": normal_count,
         "suspicious_traffic_count": suspicious_count,
@@ -46,10 +56,17 @@ def get_dashboard_stats(db: Session = Depends(get_db), current_user: User = Depe
         "active_model_name": active_model.name if active_model else "Random Forest (Default)",
         "recent_attacks": recent_attacks
     }
+    _stats_cache["data"] = res
+    _stats_cache["timestamp"] = now
+    return res
 
 
 @router.get("/charts")
 def get_dashboard_charts(db: Session = Depends(get_db), current_user: User = Depends(require_any_user)):
+    now = time.time()
+    if _charts_cache["data"] and (now - _charts_cache["timestamp"] < CACHE_TTL_SECONDS):
+        return _charts_cache["data"]
+
     # 1. Traffic over time (hourly / per interval aggregated flows)
     time_series = [
         {"time": "00:00", "normal": 420, "attacks": 12},
@@ -167,7 +184,7 @@ def get_dashboard_charts(db: Session = Depends(get_db), current_user: User = Dep
             {"ip": "10.0.0.254 (Proxy)", "count": 90}
         ]
         
-    return {
+    res_charts = {
         "traffic_over_time": time_series,
         "normal_vs_malicious": normal_vs_malicious,
         "attack_distribution": cat_dist,
@@ -177,3 +194,7 @@ def get_dashboard_charts(db: Session = Depends(get_db), current_user: User = Dep
         "top_source_ips": top_source_ips,
         "top_dest_ips": top_dest_ips
     }
+    _charts_cache["data"] = res_charts
+    _charts_cache["timestamp"] = now
+    return res_charts
+

@@ -29,7 +29,8 @@ client.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('nids_access_token');
       localStorage.removeItem('nids_user');
-      if (window.location.pathname !== '/login' && window.location.pathname !== '/register' && window.location.pathname !== '/') {
+      const path = window.location.pathname;
+      if (path !== '/login' && path !== '/register' && path !== '/' && !path.startsWith('/share/')) {
         window.location.href = '/login?expired=1';
       }
     }

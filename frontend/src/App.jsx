@@ -27,6 +27,7 @@ import SettingsPage from './pages/SettingsPage';
 import ProfilePage from './pages/ProfilePage';
 import PlaybooksPage from './pages/PlaybooksPage';
 import NetworkTopologyPage from './pages/NetworkTopologyPage';
+import SharedReportViewerPage from './pages/SharedReportViewerPage';
 import AiCopilotWidget from './components/AiCopilotWidget';
 
 
@@ -54,6 +55,8 @@ export function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/share/:token" element={<SharedReportViewerPage />} />
+
 
           {/* Protected NIDS Dashboard Routes */}
           <Route

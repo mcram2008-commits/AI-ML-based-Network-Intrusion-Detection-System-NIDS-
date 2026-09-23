@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import client from '../api/client';
-import { FileText, Download, Printer, ShieldCheck, CheckCircle2, AlertTriangle, Mail } from 'lucide-react';
+import { FileText, Download, Printer, ShieldCheck, CheckCircle2, AlertTriangle, Mail, Share2, Lock } from 'lucide-react';
 import ToastNotification from '../components/ToastNotification';
 import SendIPReportModal from '../components/SendIPReportModal';
+import SecureShareModal from '../components/SecureShareModal';
 
 export const ReportsPage = () => {
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
   const [isMailModalOpen, setIsMailModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -59,6 +61,14 @@ export const ReportsPage = () => {
 
         <div className="flex items-center gap-3">
           <button
+            onClick={() => setIsShareModalOpen(true)}
+            className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-2 transition-all border border-emerald-400/30 shadow-lg shadow-emerald-600/20"
+          >
+            <Lock size={15} />
+            <span>Share Secretly</span>
+          </button>
+
+          <button
             onClick={() => setIsMailModalOpen(true)}
             className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-2 transition-all border border-indigo-400/30 shadow-lg shadow-indigo-600/20"
           >
@@ -90,6 +100,15 @@ export const ReportsPage = () => {
         initialSourceIp="185.220.101.5"
         initialDestinationIp="10.0.0.1"
       />
+
+      <SecureShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        reportTitle="SOC Executive Security Audit Report"
+        payloadData={report || {}}
+        onToast={(t) => setToast(t)}
+      />
+
 
       {/* Printable Report Document Card */}
       <div className="glass-card p-8 rounded-2xl border border-slate-800 space-y-6 shadow-2xl text-slate-200 print:text-black print:bg-white print:p-0">
