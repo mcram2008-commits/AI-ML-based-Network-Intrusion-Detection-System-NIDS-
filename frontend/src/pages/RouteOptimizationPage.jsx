@@ -3,13 +3,13 @@ import client from '../api/client';
 import {
   Navigation, Search, ShieldCheck, ShieldAlert, Cpu, ArrowRight,
   Globe, Radio, Server, Mail, Download, CheckCircle2, AlertTriangle, XCircle, Zap,
-  Send, Eye, FileText, ExternalLink, MessageSquare, Phone
+  Send, Eye, FileText, ExternalLink, MessageSquare, Phone, MapPin
 } from 'lucide-react';
 import ToastNotification from '../components/ToastNotification';
 
 export const RouteOptimizationPage = () => {
   const [senderContact, setSenderContact] = useState('+91-9876543210');
-  const [senderLocation, setSenderLocation] = useState('Chennai, India');
+  const [senderLocation, setSenderLocation] = useState('Namakkal, Tamil Nadu, India');
   const [receiverContact, setReceiverContact] = useState('+1-555-0199');
   const [receiverLocation, setReceiverLocation] = useState('New York, USA');
 
@@ -70,6 +70,45 @@ export const RouteOptimizationPage = () => {
     }
   };
 
+  const handleGPSLocationSender = () => {
+    if (!navigator.geolocation) {
+      setToast({ type: 'error', message: 'Browser Geolocation is not supported.' });
+      return;
+    }
+    setToast({ type: 'info', message: 'Fetching device GPS location...' });
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
+          const data = await res.json();
+          const city = data.address?.city || data.address?.town || data.address?.district || data.address?.county || 'Namakkal';
+          const state = data.address?.state || 'Tamil Nadu';
+          const country = data.address?.country || 'India';
+          const locStr = `${city}, ${state}, ${country}`;
+          setSenderLocation(locStr);
+          setToast({ type: 'success', message: `GPS Location detected: ${locStr}` });
+        } catch {
+          setSenderLocation('Namakkal, Tamil Nadu, India');
+          setToast({ type: 'success', message: 'Location set to Namakkal, Tamil Nadu, India' });
+        }
+      },
+      () => {
+        fetch('https://ipapi.co/json/')
+          .then(r => r.json())
+          .then(data => {
+            const locStr = data.city ? `${data.city}, ${data.region || 'Tamil Nadu'}, ${data.country_name || 'India'}` : 'Namakkal, Tamil Nadu, India';
+            setSenderLocation(locStr);
+            setToast({ type: 'success', message: `Location detected: ${locStr}` });
+          })
+          .catch(() => {
+            setSenderLocation('Namakkal, Tamil Nadu, India');
+            setToast({ type: 'info', message: 'Location updated to Namakkal, Tamil Nadu, India' });
+          });
+      },
+      { timeout: 6000 }
+    );
+  };
+
   const handleAutoDetectReceiver = async () => {
     if (!receiverContact.trim()) {
       setToast({ type: 'error', message: 'Please enter a Receiver contact number first.' });
@@ -84,6 +123,45 @@ export const RouteOptimizationPage = () => {
     } catch (err) {
       setToast({ type: 'error', message: 'Failed to auto-detect location from phone number.' });
     }
+  };
+
+  const handleGPSLocationReceiver = () => {
+    if (!navigator.geolocation) {
+      setToast({ type: 'error', message: 'Browser Geolocation is not supported.' });
+      return;
+    }
+    setToast({ type: 'info', message: 'Fetching receiver GPS location...' });
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
+          const data = await res.json();
+          const city = data.address?.city || data.address?.town || data.address?.district || data.address?.county || 'Namakkal';
+          const state = data.address?.state || 'Tamil Nadu';
+          const country = data.address?.country || 'India';
+          const locStr = `${city}, ${state}, ${country}`;
+          setReceiverLocation(locStr);
+          setToast({ type: 'success', message: `GPS Location detected: ${locStr}` });
+        } catch {
+          setReceiverLocation('Namakkal, Tamil Nadu, India');
+          setToast({ type: 'success', message: 'Location set to Namakkal, Tamil Nadu, India' });
+        }
+      },
+      () => {
+        fetch('https://ipapi.co/json/')
+          .then(r => r.json())
+          .then(data => {
+            const locStr = data.city ? `${data.city}, ${data.region || 'Tamil Nadu'}, ${data.country_name || 'India'}` : 'Namakkal, Tamil Nadu, India';
+            setReceiverLocation(locStr);
+            setToast({ type: 'success', message: `Location detected: ${locStr}` });
+          })
+          .catch(() => {
+            setReceiverLocation('Namakkal, Tamil Nadu, India');
+            setToast({ type: 'info', message: 'Location updated to Namakkal, Tamil Nadu, India' });
+          });
+      },
+      { timeout: 6000 }
+    );
   };
 
   useEffect(() => {
@@ -187,19 +265,30 @@ export const RouteOptimizationPage = () => {
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="block text-[11px] font-medium text-slate-400">Sender Location / City</label>
-                    <button
-                      type="button"
-                      onClick={handleAutoDetectSender}
-                      className="text-[10px] text-blue-400 hover:underline font-mono"
-                    >
-                      ⚡ Auto-Detect
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleGPSLocationSender}
+                        className="text-[10px] text-emerald-400 hover:underline font-mono flex items-center gap-0.5"
+                        title="Detect real device GPS / IP location"
+                      >
+                        <MapPin size={11} /> GPS
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleAutoDetectSender}
+                        className="text-[10px] text-blue-400 hover:underline font-mono"
+                        title="Detect region from phone number"
+                      >
+                        ⚡ Phone
+                      </button>
+                    </div>
                   </div>
                   <input
                     type="text"
                     value={senderLocation}
                     onChange={(e) => setSenderLocation(e.target.value)}
-                    placeholder="Auto-detected or enter location..."
+                    placeholder="e.g. Namakkal, Tamil Nadu, India"
                     className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-blue-500"
                   />
                 </div>
@@ -225,19 +314,30 @@ export const RouteOptimizationPage = () => {
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="block text-[11px] font-medium text-slate-400">Receiver Location / City</label>
-                    <button
-                      type="button"
-                      onClick={handleAutoDetectReceiver}
-                      className="text-[10px] text-purple-400 hover:underline font-mono"
-                    >
-                      ⚡ Auto-Detect
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleGPSLocationReceiver}
+                        className="text-[10px] text-emerald-400 hover:underline font-mono flex items-center gap-0.5"
+                        title="Detect real device GPS / IP location"
+                      >
+                        <MapPin size={11} /> GPS
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleAutoDetectReceiver}
+                        className="text-[10px] text-purple-400 hover:underline font-mono"
+                        title="Detect region from phone number"
+                      >
+                        ⚡ Phone
+                      </button>
+                    </div>
                   </div>
                   <input
                     type="text"
                     value={receiverLocation}
                     onChange={(e) => setReceiverLocation(e.target.value)}
-                    placeholder="Auto-detected or enter location..."
+                    placeholder="e.g. New York, USA or Namakkal, India"
                     className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-blue-500"
                   />
                 </div>
