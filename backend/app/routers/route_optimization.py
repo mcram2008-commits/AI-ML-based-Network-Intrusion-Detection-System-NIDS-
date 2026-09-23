@@ -105,15 +105,21 @@ def _infer_location_from_phone(contact: str) -> str:
     if is_india and len(local_digits) >= 4:
         prefix4 = local_digits[:4]
         
-        # Chennai & Tamil Nadu
-        tn_prefixes = {
-            "9840", "9841", "9884", "9444", "9445", "9790", "9791", "9003", "9094", "9500",
-            "9176", "9600", "9940", "9952", "9894", "9443", "7358", "8056", "6380", "9384",
-            "9361", "9345", "8939", "7200", "7299", "7305", "7397", "7550", "8925", "9025",
-            "9042", "9043", "9080", "9150", "9159", "9360", "9566", "9677", "9710", "9789",
-            "9842", "9843", "9865", "9942", "9943", "9944", "9994"
+        # Tamil Nadu - Namakkal / Salem / Erode (Kongu Belt)
+        tn_namakkal_prefixes = {
+            "9443", "9894", "9486", "9487", "9488", "9489", "9786", "9787", "9788", "9789",
+            "9942", "9943", "9944", "9994", "9842", "9865", "9047", "9048", "9049", "9629",
+            "9659", "9750", "9751", "9360", "9361", "9345"
         }
-        
+
+        # Tamil Nadu - Chennai Metro & Northern Belt
+        tn_chennai_prefixes = {
+            "9840", "9841", "9884", "9444", "9445", "9790", "9791", "9003", "9094", "9500",
+            "9176", "9600", "9940", "9952", "7358", "8056", "6380", "9384", "8939", "7200",
+            "7299", "7305", "7397", "7550", "8925", "9025", "9042", "9043", "9080", "9150",
+            "9159", "9566", "9677", "9710", "9789"
+        }
+
         # Mumbai & Maharashtra
         mh_prefixes = {
             "9820", "9821", "9819", "9833", "9869", "9892", "9920", "9930", "9967", "9969",
@@ -156,7 +162,9 @@ def _infer_location_from_phone(contact: str) -> str:
             "8336", "8420", "8697", "8961", "8981", "9123", "9330", "9331", "9339"
         }
 
-        if prefix4 in tn_prefixes:
+        if prefix4 in tn_namakkal_prefixes:
+            return "Namakkal, Tamil Nadu, India"
+        elif prefix4 in tn_chennai_prefixes:
             return "Chennai, Tamil Nadu, India"
         elif prefix4 in mh_prefixes:
             return "Mumbai, Maharashtra, India"
@@ -169,18 +177,20 @@ def _infer_location_from_phone(contact: str) -> str:
         elif prefix4 in wb_prefixes:
             return "Kolkata, West Bengal, India"
         
-        # Deterministic hashing fallback for unlisted Indian 10-digit series
+        # Deterministic hashing fallback for Indian 10-digit numbers
         indian_hubs = [
+            "Namakkal, Tamil Nadu, India",
             "Chennai, Tamil Nadu, India",
+            "Coimbatore, Tamil Nadu, India",
             "Mumbai, Maharashtra, India",
             "Bangalore, Karnataka, India",
             "Hyderabad, Telangana, India",
             "Delhi / NCR, India",
             "Kolkata, West Bengal, India",
             "Pune, Maharashtra, India",
-            "Coimbatore, Tamil Nadu, India",
-            "Kochi, Kerala, India",
-            "Ahmedabad, Gujarat, India"
+            "Madurai, Tamil Nadu, India",
+            "Trichy, Tamil Nadu, India",
+            "Salem, Tamil Nadu, India"
         ]
         num_hash = int(hashlib.md5(local_digits.encode()).hexdigest(), 16)
         return indian_hubs[num_hash % len(indian_hubs)]
