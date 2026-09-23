@@ -9,10 +9,8 @@ import ToastNotification from '../components/ToastNotification';
 
 export const RouteOptimizationPage = () => {
   const [senderContact, setSenderContact] = useState('+91-9876543210');
-  const [senderLocation, setSenderLocation] = useState('Namakkal, Tamil Nadu, India');
   const [senderIp, setSenderIp] = useState('');
   const [receiverContact, setReceiverContact] = useState('+1-555-0199');
-  const [receiverLocation, setReceiverLocation] = useState('New York, USA');
   const [receiverIp, setReceiverIp] = useState('');
 
   const [analysis, setAnalysis] = useState(null);
@@ -66,8 +64,8 @@ export const RouteOptimizationPage = () => {
 
   const handleAnalyze = async (e) => {
     if (e) e.preventDefault();
-    if (!senderContact || !senderLocation || !receiverContact || !receiverLocation) {
-      setToast({ type: 'error', message: 'Please fill in all Sender and Receiver details.' });
+    if (!senderContact || !receiverContact) {
+      setToast({ type: 'error', message: 'Please enter Sender and Receiver contact numbers.' });
       return;
     }
 
@@ -75,9 +73,9 @@ export const RouteOptimizationPage = () => {
     try {
       const res = await client.post('/routes/analyze', {
         sender_contact: senderContact,
-        sender_location: senderLocation,
+        sender_location: 'Network Gateway Node',
         receiver_contact: receiverContact,
-        receiver_location: receiverLocation,
+        receiver_location: 'Target Destination Node',
         sender_ip_override: senderIp.trim() || undefined,
         receiver_ip_override: receiverIp.trim() || undefined
       });
@@ -85,122 +83,12 @@ export const RouteOptimizationPage = () => {
       if (res.data?.best_route) {
         setSelectedRouteId(res.data.best_route.route_id);
       }
-      setToast({ type: 'success', message: 'Smart Route Optimization completed successfully!' });
+      setToast({ type: 'success', message: 'IP Identification & Smart Route Analysis completed successfully!' });
     } catch (err) {
       setToast({ type: 'error', message: 'Failed to analyze network routes.' });
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleAutoDetectSender = async () => {
-    if (!senderContact.trim()) {
-      setToast({ type: 'error', message: 'Please enter a Sender contact number first.' });
-      return;
-    }
-    try {
-      const res = await client.get(`/routes/lookup-phone?phone=${encodeURIComponent(senderContact.trim())}`);
-      if (res.data?.detected_location) {
-        setSenderLocation(res.data.detected_location);
-        setToast({ type: 'success', message: `Sender location auto-detected as ${res.data.detected_location}` });
-      }
-    } catch (err) {
-      setToast({ type: 'error', message: 'Failed to auto-detect location from phone number.' });
-    }
-  };
-
-  const handleGPSLocationSender = () => {
-    if (!navigator.geolocation) {
-      setToast({ type: 'error', message: 'Browser Geolocation is not supported.' });
-      return;
-    }
-    setToast({ type: 'info', message: 'Fetching device GPS location...' });
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
-          const data = await res.json();
-          const city = data.address?.city || data.address?.town || data.address?.district || data.address?.county || 'Namakkal';
-          const state = data.address?.state || 'Tamil Nadu';
-          const country = data.address?.country || 'India';
-          const locStr = `${city}, ${state}, ${country}`;
-          setSenderLocation(locStr);
-          setToast({ type: 'success', message: `GPS Location detected: ${locStr}` });
-        } catch {
-          setSenderLocation('Namakkal, Tamil Nadu, India');
-          setToast({ type: 'success', message: 'Location set to Namakkal, Tamil Nadu, India' });
-        }
-      },
-      () => {
-        fetch('https://ipapi.co/json/')
-          .then(r => r.json())
-          .then(data => {
-            const locStr = data.city ? `${data.city}, ${data.region || 'Tamil Nadu'}, ${data.country_name || 'India'}` : 'Namakkal, Tamil Nadu, India';
-            setSenderLocation(locStr);
-            setToast({ type: 'success', message: `Location detected: ${locStr}` });
-          })
-          .catch(() => {
-            setSenderLocation('Namakkal, Tamil Nadu, India');
-            setToast({ type: 'info', message: 'Location updated to Namakkal, Tamil Nadu, India' });
-          });
-      },
-      { timeout: 6000 }
-    );
-  };
-
-  const handleAutoDetectReceiver = async () => {
-    if (!receiverContact.trim()) {
-      setToast({ type: 'error', message: 'Please enter a Receiver contact number first.' });
-      return;
-    }
-    try {
-      const res = await client.get(`/routes/lookup-phone?phone=${encodeURIComponent(receiverContact.trim())}`);
-      if (res.data?.detected_location) {
-        setReceiverLocation(res.data.detected_location);
-        setToast({ type: 'success', message: `Receiver location auto-detected as ${res.data.detected_location}` });
-      }
-    } catch (err) {
-      setToast({ type: 'error', message: 'Failed to auto-detect location from phone number.' });
-    }
-  };
-
-  const handleGPSLocationReceiver = () => {
-    if (!navigator.geolocation) {
-      setToast({ type: 'error', message: 'Browser Geolocation is not supported.' });
-      return;
-    }
-    setToast({ type: 'info', message: 'Fetching receiver GPS location...' });
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
-          const data = await res.json();
-          const city = data.address?.city || data.address?.town || data.address?.district || data.address?.county || 'Namakkal';
-          const state = data.address?.state || 'Tamil Nadu';
-          const country = data.address?.country || 'India';
-          const locStr = `${city}, ${state}, ${country}`;
-          setReceiverLocation(locStr);
-          setToast({ type: 'success', message: `GPS Location detected: ${locStr}` });
-        } catch {
-          setReceiverLocation('Namakkal, Tamil Nadu, India');
-          setToast({ type: 'success', message: 'Location set to Namakkal, Tamil Nadu, India' });
-        }
-      },
-      () => {
-        fetch('https://ipapi.co/json/')
-          .then(r => r.json())
-          .then(data => {
-            const locStr = data.city ? `${data.city}, ${data.region || 'Tamil Nadu'}, ${data.country_name || 'India'}` : 'Namakkal, Tamil Nadu, India';
-            setReceiverLocation(locStr);
-            setToast({ type: 'success', message: `Location detected: ${locStr}` });
-          })
-          .catch(() => {
-            setReceiverLocation('Namakkal, Tamil Nadu, India');
-            setToast({ type: 'info', message: 'Location updated to Namakkal, Tamil Nadu, India' });
-          });
-      },
-      { timeout: 6000 }
-    );
   };
 
   useEffect(() => {
@@ -263,7 +151,7 @@ export const RouteOptimizationPage = () => {
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
             <Navigation className="text-blue-400" size={26} />
-            Smart Route Finder & NIDS Threat Optimizer
+            IP Identification & Smart Route Optimizer
           </h1>
           <p className="text-slate-400 text-xs mt-1">
             4-Step Intelligence Pipeline: <strong>1. IP Find</strong> &rarr; <strong>2. Route Find</strong> &rarr; <strong>3. Threat Find</strong> &rarr; <strong>4. Best Route Suggestion</strong>
@@ -300,24 +188,14 @@ export const RouteOptimizationPage = () => {
                   🌐 Fetch My Real IP
                 </button>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-medium text-slate-400 mb-1">Contact Number</label>
+                  <label className="block text-[11px] font-medium text-slate-400 mb-1">Sender Contact Number</label>
                   <input
                     type="text"
                     value={senderContact}
                     onChange={(e) => setSenderContact(e.target.value)}
                     placeholder="+91-9876543210"
-                    className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-medium text-slate-400 mb-1">Location / Region</label>
-                  <input
-                    type="text"
-                    value={senderLocation}
-                    onChange={(e) => setSenderLocation(e.target.value)}
-                    placeholder="e.g. Namakkal, Tamil Nadu, India"
                     className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-blue-500"
                   />
                 </div>
@@ -350,24 +228,14 @@ export const RouteOptimizationPage = () => {
                   🌐 Auto-Detect IP
                 </button>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-medium text-slate-400 mb-1">Contact Number</label>
+                  <label className="block text-[11px] font-medium text-slate-400 mb-1">Receiver Contact Number</label>
                   <input
                     type="text"
                     value={receiverContact}
                     onChange={(e) => setReceiverContact(e.target.value)}
                     placeholder="+1-555-0199"
-                    className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-purple-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-medium text-slate-400 mb-1">Location / Region</label>
-                  <input
-                    type="text"
-                    value={receiverLocation}
-                    onChange={(e) => setReceiverLocation(e.target.value)}
-                    placeholder="e.g. New York, USA"
                     className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-sm text-slate-200 focus:outline-none focus:border-purple-500"
                   />
                 </div>

@@ -19,7 +19,7 @@ export const Sidebar = () => {
     { label: 'Topology & GeoMap', path: '/network-topology', icon: Network, roles: ['Admin', 'Security Analyst', 'Viewer'] },
     { label: 'Attack Analytics', path: '/analytics', icon: BarChart2, roles: ['Admin', 'Security Analyst', 'Viewer'] },
     { label: 'IP Investigation', path: '/ip-investigation', icon: Globe, roles: ['Admin', 'Security Analyst'] },
-    { label: 'Smart Route Finder', path: '/route-optimization', icon: Navigation, roles: ['Admin', 'Security Analyst'] },
+    { label: 'IP Identification', path: '/route-optimization', icon: Navigation, roles: ['Admin', 'Security Analyst'] },
     { label: 'Datasets', path: '/datasets', icon: Database, roles: ['Admin', 'Security Analyst'] },
     { label: 'ML Models', path: '/models', icon: Cpu, roles: ['Admin', 'Security Analyst'] },
     { label: 'Security Reports', path: '/reports', icon: FileText, roles: ['Admin', 'Security Analyst', 'Viewer'] },
