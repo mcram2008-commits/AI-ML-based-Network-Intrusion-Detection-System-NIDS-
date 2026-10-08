@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import client from '../api/client';
-import { Globe, Search, ShieldAlert, Activity, Clock, Server, Mail } from 'lucide-react';
+import { Globe, Search, ShieldAlert, Activity, Clock, Server, Mail, Bot, Sparkles } from 'lucide-react';
 import ToastNotification from '../components/ToastNotification';
 import SendIPReportModal from '../components/SendIPReportModal';
-
 import FirewallRuleModal from '../components/FirewallRuleModal';
+
+const getFlagEmoji = (countryCode) => {
+  if (!countryCode || countryCode === 'INT' || countryCode === 'UN') return '🌐';
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+};
 
 export const IPInvestigationPage = () => {
   const [ipInput, setIpInput] = useState('185.220.101.5');
@@ -52,9 +60,9 @@ export const IPInvestigationPage = () => {
       <div>
         <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
           <Globe className="text-blue-400" size={24} />
-          IP Threat Investigation Console
+          IP Threat Intelligence & Forensic Console
         </h1>
-        <p className="text-slate-400 text-xs mt-1">Deep forensic telemetry, historical connection timeline, and threat score assessment</p>
+        <p className="text-slate-400 text-xs mt-1">Deep forensic telemetry, automated threat intelligence, geolocation, & historical timeline</p>
       </div>
 
       {/* Search & Action Bar */}
@@ -81,7 +89,7 @@ export const IPInvestigationPage = () => {
           </form>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={async () => {
               const target = ipData?.ip_address || ipInput || '185.220.101.5';
@@ -116,8 +124,22 @@ export const IPInvestigationPage = () => {
             <Mail size={16} />
             <span>Dispatch Email</span>
           </button>
-        </div>
 
+          <button
+            onClick={() => {
+              const target = ipData?.ip_address || ipInput || '185.220.101.5';
+              window.dispatchEvent(
+                new CustomEvent('open-aegis-ai-copilot', {
+                  detail: { query: `Investigate threat telemetry for IP ${target}` }
+                })
+              );
+            }}
+            className="px-4 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl border border-blue-400/40 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 transition-all"
+          >
+            <Bot size={16} />
+            <span>Ask AI Copilot</span>
+          </button>
+        </div>
       </div>
 
       <FirewallRuleModal
@@ -157,6 +179,92 @@ export const IPInvestigationPage = () => {
               <div className="text-xl font-black font-mono">{ipData.threat_score} / 100 ({ipData.threat_level})</div>
             </div>
           </div>
+
+          {/* Threat Intelligence & Geo-Reputation Panel */}
+          {ipData.threat_intelligence && (
+            <div className="glass-card p-6 rounded-2xl border border-slate-800 bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-slate-950/80 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl">
+                    <Globe size={22} />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-bold text-white flex items-center gap-2">
+                      Automated Threat Intelligence & Geo-Reputation
+                      <span className="px-2 py-0.5 text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full">ENRICHED</span>
+                    </h2>
+                    <p className="text-slate-400 text-xs">Real-time IP geolocation, ISP metadata, proxy/Tor node detection, & Abuse score</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-slate-400 font-mono">Abuse Confidence:</span>
+                  <div className="px-3 py-1 bg-slate-950 border border-slate-800 rounded-lg text-sm font-bold font-mono text-red-400">
+                    {ipData.threat_intelligence.abuse_confidence_score}%
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
+                <div className="p-3.5 bg-slate-950/70 border border-slate-800/80 rounded-xl space-y-1">
+                  <span className="text-slate-500 uppercase text-[10px] block font-sans">Location & Country</span>
+                  <div className="text-white font-bold text-sm flex items-center gap-2">
+                    <span className="text-base">{getFlagEmoji(ipData.threat_intelligence.country_code)}</span>
+                    <span>{ipData.threat_intelligence.country}</span>
+                  </div>
+                  <span className="text-slate-400 text-[11px] block">{ipData.threat_intelligence.city}</span>
+                </div>
+
+                <div className="p-3.5 bg-slate-950/70 border border-slate-800/80 rounded-xl space-y-1">
+                  <span className="text-slate-500 uppercase text-[10px] block font-sans">ISP & ASN Provider</span>
+                  <div className="text-blue-300 font-bold text-xs truncate">{ipData.threat_intelligence.isp}</div>
+                  <span className="text-slate-400 text-[11px] block truncate">{ipData.threat_intelligence.asn}</span>
+                </div>
+
+                <div className="p-3.5 bg-slate-950/70 border border-slate-800/80 rounded-xl space-y-1">
+                  <span className="text-slate-500 uppercase text-[10px] block font-sans">Domain Reputation</span>
+                  <div className="text-amber-400 font-bold text-xs">{ipData.threat_intelligence.domain_reputation}</div>
+                  <div className="w-full bg-slate-900 rounded-full h-1.5 mt-1.5 overflow-hidden">
+                    <div
+                      className="bg-gradient-to-r from-yellow-500 to-red-500 h-1.5 rounded-full transition-all"
+                      style={{ width: `${ipData.threat_intelligence.abuse_confidence_score}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="p-3.5 bg-slate-950/70 border border-slate-800/80 rounded-xl space-y-1">
+                  <span className="text-slate-500 uppercase text-[10px] block font-sans">Classification</span>
+                  <div className="flex flex-wrap gap-1.5 pt-0.5">
+                    {ipData.threat_intelligence.is_tor_exit_node && (
+                      <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-300 border border-red-500/40 text-[10px]">🧅 Tor Exit</span>
+                    )}
+                    {ipData.threat_intelligence.is_known_proxy_vpn && (
+                      <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40 text-[10px]">🛡️ Proxy/VPN</span>
+                    )}
+                    {ipData.threat_intelligence.is_botnet_member && (
+                      <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[10px]">🤖 Botnet</span>
+                    )}
+                    {!ipData.threat_intelligence.is_tor_exit_node && !ipData.threat_intelligence.is_known_proxy_vpn && !ipData.threat_intelligence.is_botnet_member && (
+                      <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px]">✅ Standard Host</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Threat Tags */}
+              {ipData.threat_intelligence.threat_tags && ipData.threat_intelligence.threat_tags.length > 0 && (
+                <div className="flex items-center gap-2 pt-1 text-xs font-mono">
+                  <span className="text-slate-400 font-sans">Threat Tags:</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {ipData.threat_intelligence.threat_tags.map((tag, tIdx) => (
+                      <span key={tIdx} className="px-2.5 py-0.5 rounded-full bg-slate-800/90 text-slate-300 border border-slate-700 text-[10px]">
+                        🏷️ {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Details Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -245,3 +353,4 @@ export const IPInvestigationPage = () => {
 };
 
 export default IPInvestigationPage;
+

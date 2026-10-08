@@ -28,6 +28,8 @@ import ProfilePage from './pages/ProfilePage';
 import PlaybooksPage from './pages/PlaybooksPage';
 import NetworkTopologyPage from './pages/NetworkTopologyPage';
 import SharedReportViewerPage from './pages/SharedReportViewerPage';
+import AiCopilotPage from './pages/AiCopilotPage';
+import FirewallCenterPage from './pages/FirewallCenterPage';
 import AiCopilotWidget from './components/AiCopilotWidget';
 
 
@@ -104,6 +106,22 @@ export function App() {
             element={
               <ProtectedRoute allowedRoles={['Admin', 'Security Analyst', 'Viewer']}>
                 <ProtectedLayout><NetworkTopologyPage /></ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/copilot"
+            element={
+              <ProtectedRoute allowedRoles={['Admin', 'Security Analyst', 'Viewer']}>
+                <ProtectedLayout><AiCopilotPage /></ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/firewall"
+            element={
+              <ProtectedRoute allowedRoles={['Admin', 'Security Analyst']}>
+                <ProtectedLayout><FirewallCenterPage /></ProtectedLayout>
               </ProtectedRoute>
             }
           />

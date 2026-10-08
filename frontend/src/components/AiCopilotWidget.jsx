@@ -35,8 +35,18 @@ export const AiCopilotWidget = ({ isOpenExternal, onCloseExternal }) => {
 
   useEffect(() => {
     const handleGlobalToggle = () => setIsOpen((prev) => !prev);
+    const handleOpenWithQuery = (e) => {
+      setIsOpen(true);
+      if (e.detail && e.detail.query) {
+        handleSend(e.detail.query);
+      }
+    };
     window.addEventListener('toggle-aegis-ai-copilot', handleGlobalToggle);
-    return () => window.removeEventListener('toggle-aegis-ai-copilot', handleGlobalToggle);
+    window.addEventListener('open-aegis-ai-copilot', handleOpenWithQuery);
+    return () => {
+      window.removeEventListener('toggle-aegis-ai-copilot', handleGlobalToggle);
+      window.removeEventListener('open-aegis-ai-copilot', handleOpenWithQuery);
+    };
   }, []);
 
   useEffect(() => {

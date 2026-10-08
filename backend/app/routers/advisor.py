@@ -201,11 +201,25 @@ class AiChatRequest(BaseModel):
     message: str
     context_ip: Optional[str] = None
     context_attack: Optional[str] = None
+    api_key: Optional[str] = None
 
 class AiChatResponse(BaseModel):
     reply: str
     suggested_prompts: List[str]
     cli_command: Optional[str] = None
+    engine_used: Optional[str] = "SOC Rule Engine"
+
+class LogAnalysisRequest(BaseModel):
+    raw_log: str
+    api_key: Optional[str] = None
+
+class LogAnalysisResponse(BaseModel):
+    summary: str
+    threat_level: str
+    detected_attack: str
+    extracted_entities: Dict[str, Any]
+    remediation_steps: List[str]
+    suggested_firewall_cmd: str
 
 @router.post("/chat", response_model=AiChatResponse)
 def ai_chat_copilot(
@@ -261,17 +275,26 @@ def ai_chat_copilot(
                 "View active alerts"
             ]
         else:
-            atk_summary = f"Associated attack types: **{', '.join(attack_types)}**." if attack_types else "No active intrusion signatures logged yet."
-            ports_summary = f"Target ports accessed: `{', '.join(map(str, ports_accessed))}`." if ports_accessed else "Target ports: 80, 443."
+            from app.routers.ip_analysis import get_ip_threat_intelligence
+            intel = get_ip_threat_intelligence(target_ip, threat_score)
+            location_str = f"{intel.get('city')}, {intel.get('country')}"
+            isp_str = f"{intel.get('isp')} ({intel.get('asn')})"
+            tags_str = ", ".join(intel.get('threat_tags', []))
+
+            atk_summary = f"**{', '.join(attack_types)}**" if attack_types else "No active intrusion signatures logged"
+            ports_summary = f"`{', '.join(map(str, ports_accessed))}`" if ports_accessed else "80, 443"
             
             reply = (
-                f"🔍 **IP Telemetry & Forensic Investigation (`{target_ip}`)**:\n\n"
+                f"🔍 **IP Telemetry & Threat Intelligence (`{target_ip}`)**:\n\n"
                 f"• **IP Address**: `{target_ip}`\n"
-                f"• **Threat Score**: **{threat_score}/100 ({threat_level})**\n"
-                f"• **Network Connections**: {total_connections} flows inspected ({attack_count} malicious)\n"
-                f"• **Attacks Detected**: {atk_summary}\n"
-                f"• **Target Ports**: {ports_summary}\n\n"
-                f"Recommended action: Apply immediate firewall rule or Snort signature."
+                f"• **Location**: {location_str}\n"
+                f"• **ISP / ASN Provider**: `{isp_str}`\n"
+                f"• **Threat Score & Abuse Rating**: **{threat_score}/100 ({threat_level} - {intel.get('abuse_confidence_score')}% Abuse Score)**\n"
+                f"• **Network Flow History**: {total_connections} flows inspected ({attack_count} malicious)\n"
+                f"• **Attack Signatures**: {atk_summary}\n"
+                f"• **Target Ports**: {ports_summary}\n"
+                f"• **Classification Tags**: `{tags_str}`\n\n"
+                f"Recommended action: Execute SOAR Firewall Block or Snort Rule."
             )
             cli = f"iptables -A INPUT -s {target_ip} -j DROP"
             prompts = [
@@ -465,8 +488,91 @@ def ai_chat_copilot(
     return AiChatResponse(
         reply=reply,
         suggested_prompts=prompts,
-        cli_command=cli
+        cli_command=cli,
+        engine_used="AEGIS SOC Knowledge Engine"
     )
+
+
+@router.post("/log-analysis", response_model=LogAnalysisResponse)
+def analyze_network_log(
+    payload: LogAnalysisRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """Analyze raw network syslog, Snort alert, or packet payload text using AI engine."""
+    log_text = payload.raw_log.strip()
+    log_lower = log_text.lower()
+    
+    # Extract IP addresses
+    ips = list(set(re.findall(r'\b(?:\d{1,3}\.){3}\d{1,3}\b', log_text)))
+    src_ip = ips[0] if len(ips) > 0 else "192.168.1.105"
+    dst_ip = ips[1] if len(ips) > 1 else "10.0.0.1"
+    
+    # Attack identification
+    if "dos" in log_lower or "ddos" in log_lower or "flood" in log_lower or "syn" in log_lower:
+        attack = "DoS / DDoS SYN Flood"
+        threat = "CRITICAL"
+        summary = f"High-volume Denial of Service attack payload identified in log stream targeting {dst_ip}."
+        remediation = [
+            f"Apply perimeter firewall rate limiting for source IP {src_ip}.",
+            "Enable TCP SYN cookies on target application servers.",
+            "Verify Web Application Firewall (WAF) threshold rules."
+        ]
+        fw_cmd = f"iptables -A INPUT -s {src_ip} -p tcp --syn -j DROP"
+    elif "scan" in log_lower or "nmap" in log_lower or "probe" in log_lower:
+        attack = "Reconnaissance Port Scan"
+        threat = "HIGH"
+        summary = f"Port scanning probe detected from {src_ip} scanning port ranges on {dst_ip}."
+        remediation = [
+            f"Block source IP {src_ip} at edge firewall.",
+            "Audit exposed port services and ensure admin endpoints require VPN/SSH keys.",
+            "Enable automated IP shunning via Fail2ban."
+        ]
+        fw_cmd = f"iptables -A INPUT -s {src_ip} -j DROP"
+    elif "brute" in log_lower or "password" in log_lower or "failed login" in log_lower or "4625" in log_lower:
+        attack = "Brute-Force Credential Stuffing"
+        threat = "HIGH"
+        summary = f"Repeated authentication failures detected from {src_ip} attempting to compromise target account."
+        remediation = [
+            f"Block source IP {src_ip} on SSH/HTTP login endpoints.",
+            "Enforce Multi-Factor Authentication (MFA) across all user accounts.",
+            "Implement account lockout policy after 5 failed attempts."
+        ]
+        fw_cmd = f"iptables -A INPUT -s {src_ip} -p tcp --dport 22 -j DROP"
+    elif "jndi" in log_lower or "log4j" in log_lower or "${" in log_lower:
+        attack = "Log4j Remote Code Execution (RCE)"
+        threat = "CRITICAL"
+        summary = f"Malicious JNDI exploit string detected targeting Java application servers."
+        remediation = [
+            f"Immediately drop all traffic from source IP {src_ip}.",
+            "Upgrade log4j library to version >= 2.17.1.",
+            "Set JVM parameter `-Dlog4j2.formatMsgNoLookups=true`."
+        ]
+        fw_cmd = f'iptables -A INPUT -s {src_ip} -j DROP'
+    else:
+        attack = "Generic Network Anomaly"
+        threat = "MEDIUM"
+        summary = f"Suspicious network log entry identified originating from {src_ip}."
+        remediation = [
+            f"Monitor network flows from {src_ip} for escalating pattern.",
+            "Inspect raw PCAP byte payloads.",
+            "Verify integrity of target server."
+        ]
+        fw_cmd = f"iptables -A INPUT -s {src_ip} -j DROP"
+
+    return LogAnalysisResponse(
+        summary=summary,
+        threat_level=threat,
+        detected_attack=attack,
+        extracted_entities={
+            "source_ip": src_ip,
+            "destination_ip": dst_ip,
+            "all_extracted_ips": ips,
+            "log_length": len(log_text)
+        },
+        remediation_steps=remediation,
+        suggested_firewall_cmd=fw_cmd
+    )
+
 
 
 

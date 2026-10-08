@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard, Activity, Search, Bell, BarChart2,
-  Globe, Navigation, Database, Cpu, FileText, Users, Settings, UserCheck, Shield, Zap, Network
+  Globe, Navigation, Database, Cpu, FileText, Users, Settings, UserCheck, Shield, Zap, Network, Sparkles, Lock
 } from 'lucide-react';
 
 export const Sidebar = () => {
@@ -12,10 +12,12 @@ export const Sidebar = () => {
 
   const navItems = [
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['Admin', 'Security Analyst', 'Viewer'] },
+    { label: 'AI Security Copilot', path: '/copilot', icon: Sparkles, roles: ['Admin', 'Security Analyst', 'Viewer'] },
     { label: 'Live Monitoring', path: '/monitoring', icon: Activity, roles: ['Admin', 'Security Analyst'] },
     { label: 'Intrusion Detection', path: '/detection', icon: Search, roles: ['Admin', 'Security Analyst'] },
     { label: 'Alerts Management', path: '/alerts', icon: Bell, roles: ['Admin', 'Security Analyst'] },
     { label: 'SOAR Playbooks', path: '/playbooks', icon: Zap, roles: ['Admin', 'Security Analyst'] },
+    { label: 'SOAR Firewall Center', path: '/firewall', icon: Lock, roles: ['Admin', 'Security Analyst'] },
     { label: 'Topology & GeoMap', path: '/network-topology', icon: Network, roles: ['Admin', 'Security Analyst', 'Viewer'] },
     { label: 'Attack Analytics', path: '/analytics', icon: BarChart2, roles: ['Admin', 'Security Analyst', 'Viewer'] },
     { label: 'IP Investigation', path: '/ip-investigation', icon: Globe, roles: ['Admin', 'Security Analyst'] },
