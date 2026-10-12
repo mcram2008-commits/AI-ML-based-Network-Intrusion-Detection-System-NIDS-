@@ -87,9 +87,9 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#070A12] flex items-center justify-center p-6 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(#1E293B_1px,transparent_1px)] [background-size:32px_32px] opacity-20 pointer-events-none"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-purple-600/10 blur-[140px] rounded-full pointer-events-none"></div>
+    <div className="min-h-screen bg-[#06090F] flex items-center justify-center p-6 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(#141C2E_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-blue-600/5 blur-[140px] rounded-full pointer-events-none"></div>
 
       <ToastNotification
         type={toast?.type}
@@ -97,10 +97,10 @@ export const RegisterPage = () => {
         onClose={() => setToast(null)}
       />
 
-      <div className="glass-card max-w-lg w-full p-8 rounded-2xl border border-slate-800 shadow-2xl relative z-10 my-8">
+      <div className="bezel-card max-w-lg w-full p-8 shadow-2xl relative z-10 my-8">
         <div className="flex flex-col items-center text-center mb-6">
-          <div className="w-12 h-12 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 mb-3 shadow-lg shadow-blue-600/20">
-            <ShieldCheck size={28} className="animate-pulse" />
+          <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-3 shadow-sm">
+            <ShieldCheck size={26} />
           </div>
           <h2 className="text-2xl font-bold text-white tracking-tight">Create NIDS Account</h2>
           <p className="text-slate-400 text-xs mt-1">Register for SOC access and threat intelligence dashboard</p>
@@ -267,12 +267,17 @@ export const RegisterPage = () => {
           <button
             type="submit"
             disabled={!isFormValid || loading}
-            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm rounded-lg transition-all shadow-lg shadow-blue-600/30 border border-blue-400/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="group relative w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-lg transition-all shadow-lg shadow-blue-600/30 border border-blue-400/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:translate-y-px"
           >
             {loading ? (
-              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             ) : (
-              'Create Account'
+              <>
+                <span className="w-5 h-5 rounded-md bg-white/10 flex items-center justify-center transition-colors group-hover:bg-white/20">
+                  <ShieldCheck size={13} />
+                </span>
+                <span>Create NIDS Account</span>
+              </>
             )}
           </button>
         </form>

@@ -72,16 +72,16 @@ export default function RealSnifferWidget() {
   };
 
   return (
-    <div className="glass-card p-5 rounded-2xl border border-emerald-500/30 bg-slate-900/90 shadow-xl space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-3.5">
+    <div className="bezel-card p-5 space-y-4 shadow-xl">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800/80 pb-3.5">
         <div className="flex items-center gap-3">
-          <div className={`p-2.5 rounded-xl border ${status.is_running ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 animate-pulse' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>
+          <div className={`p-2.5 rounded-xl border ${status.is_running ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-slate-800/60 text-slate-400 border-slate-700/60'}`}>
             <Radio className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-bold text-white tracking-wide">Real Network Packet Capture Engine</h3>
-              <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${status.is_running ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>
+              <span className={`px-2 py-0.5 rounded text-[10px] font-bold border font-mono ${status.is_running ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30' : 'bg-slate-800/60 text-slate-400 border-slate-700/60'}`}>
                 {status.is_running ? 'SNIFFER ACTIVE (SCAPY)' : 'IDLE'}
               </span>
             </div>
@@ -95,18 +95,22 @@ export default function RealSnifferWidget() {
             <button
               onClick={handleStop}
               disabled={loading}
-              className="px-4 py-2 bg-red-600/90 hover:bg-red-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-red-600/30 border border-red-400/40 flex items-center gap-1.5 transition-all"
+              className="group relative px-4 py-2 bg-red-600/90 hover:bg-red-500 text-white font-semibold text-xs rounded-lg shadow-lg shadow-red-600/20 border border-red-400/30 flex items-center gap-2 transition-all active:translate-y-px"
             >
-              <Square size={14} />
+              <span className="w-4 h-4 rounded bg-white/10 flex items-center justify-center">
+                <Square size={11} className="fill-current" />
+              </span>
               <span>Stop Capture</span>
             </button>
           ) : (
             <button
               onClick={handleStart}
               disabled={loading}
-              className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/30 border border-emerald-400/40 flex items-center gap-1.5 transition-all"
+              className="group relative px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-lg shadow-lg shadow-emerald-600/20 border border-emerald-400/30 flex items-center gap-2 transition-all active:translate-y-px"
             >
-              <Play size={14} />
+              <span className="w-4 h-4 rounded bg-white/10 flex items-center justify-center">
+                <Play size={11} className="fill-current" />
+              </span>
               <span>Start Real Packet Capture</span>
             </button>
           )}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import client from '../api/client';
 import {
   Zap, ShieldAlert, Play, CheckCircle2, AlertTriangle, Plus, Trash2,
-  RefreshCw, Power, Terminal, Layers, FileCode, Sliders, Activity
+  RefreshCw, Power, Terminal, Layers, FileCode, Sliders, Activity, X
 } from 'lucide-react';
 
 export const PlaybooksPage = () => {
@@ -102,7 +102,7 @@ export const PlaybooksPage = () => {
   const totalExecutions = playbooks.reduce((acc, p) => acc + (p.execution_count || 0), 0);
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto w-full pb-10">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800 pb-5">
         <div>
@@ -223,7 +223,9 @@ export const PlaybooksPage = () => {
               <CheckCircle2 size={16} className="text-emerald-400" />
               <span>Simulated trigger on IP <b>{testResult.source_ip}</b> successfully activated <b>{testResult.triggered_count}</b> playbook rule(s).</span>
             </div>
-            <button onClick={() => setTestResult(null)} className="text-slate-400 hover:text-white">✕</button>
+            <button onClick={() => setTestResult(null)} className="p-1 text-slate-400 hover:text-white rounded hover:bg-emerald-900/40 transition-colors">
+              <X size={14} />
+            </button>
           </div>
         )}
 
@@ -344,7 +346,9 @@ export const PlaybooksPage = () => {
                 <Plus size={18} className="text-blue-400" />
                 Create SOAR Playbook Rule
               </h3>
-              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-white">✕</button>
+              <button onClick={() => setShowAddModal(false)} className="p-1 text-slate-400 hover:text-white rounded hover:bg-slate-800 transition-colors">
+                <X size={16} />
+              </button>
             </div>
 
             <form onSubmit={handleCreate} className="space-y-3 text-xs">

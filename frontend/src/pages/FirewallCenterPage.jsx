@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import client from '../api/client';
 import {
-  Shield, Lock, Unlock, AlertTriangle, RefreshCw, Terminal, Search, Copy, Check, Download, Zap, Activity, Cpu, CheckCircle
+  Shield, Lock, Unlock, AlertTriangle, RefreshCw, Terminal, Search, Copy, Check, Download, Zap, Activity, Cpu, CheckCircle, X, ShieldAlert
 } from 'lucide-react';
 
 export const FirewallCenterPage = () => {
@@ -79,7 +79,7 @@ export const FirewallCenterPage = () => {
       });
       setBlockIpInput('');
       fetchActiveRules();
-    } fontally: {
+    } finally {
       setExecuting(false);
     }
   };
@@ -113,18 +113,18 @@ export const FirewallCenterPage = () => {
   );
 
   return (
-    <div className="space-y-6 pb-8">
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto w-full pb-10">
       {/* Top Banner Header */}
       <div className="bg-gradient-to-r from-slate-900 via-rose-950/40 to-slate-900 p-6 rounded-2xl border border-rose-500/30 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-rose-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="flex items-center gap-4 relative z-10">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-rose-600 to-red-700 border border-rose-400/40 flex items-center justify-center text-white shadow-xl shadow-rose-600/30">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-rose-600 to-red-700 border border-rose-400/40 flex items-center justify-center text-white shadow-xl shadow-rose-600/30 flex-shrink-0">
             <Lock size={28} className="animate-pulse" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-black text-white tracking-tight">SOAR Automated Threat Mitigation & Firewall Center</h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">SOAR Automated Threat Mitigation & Firewall Center</h1>
               <span className="px-2.5 py-0.5 rounded-full text-xs font-mono bg-rose-500/20 text-rose-300 border border-rose-500/40 flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
                 ACTIVE DEFENSE ENFORCED
@@ -137,7 +137,7 @@ export const FirewallCenterPage = () => {
         </div>
 
         {/* Auto-Mitigation Toggle Button */}
-        <div className="flex items-center gap-3 bg-slate-950/90 p-3 rounded-xl border border-slate-800 relative z-10">
+        <div className="flex items-center gap-3 bg-slate-950/90 p-3 rounded-xl border border-slate-800 relative z-10 flex-shrink-0">
           <div className="text-right">
             <span className="text-xs font-bold text-white block">SOAR Auto-Mitigation</span>
             <span className="text-[10px] text-slate-400 font-mono">
@@ -161,46 +161,46 @@ export const FirewallCenterPage = () => {
 
       {/* Top Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#0B0F19] p-5 rounded-2xl border border-slate-800/80 shadow-xl flex items-center justify-between">
+        <div className="bg-[#0B0F19] p-5 rounded-2xl border border-slate-800/80 shadow-xl flex items-center justify-between min-h-[96px]">
           <div>
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Blocked IPs</span>
             <p className="text-2xl font-black text-rose-400 mt-1 font-mono">{activeRules.length}</p>
             <span className="text-[10px] text-slate-500">Enforced in Firewall Registry</span>
           </div>
-          <div className="w-11 h-11 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
+          <div className="w-11 h-11 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 flex-shrink-0">
             <Shield size={22} />
           </div>
         </div>
 
-        <div className="bg-[#0B0F19] p-5 rounded-2xl border border-slate-800/80 shadow-xl flex items-center justify-between">
+        <div className="bg-[#0B0F19] p-5 rounded-2xl border border-slate-800/80 shadow-xl flex items-center justify-between min-h-[96px]">
           <div>
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Kernel Firewall Engine</span>
             <p className="text-base font-bold text-white mt-1">Windows Netsh / Iptables</p>
             <span className="text-[10px] text-emerald-400 font-mono">● LIVE KERNEL FILTER</span>
           </div>
-          <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+          <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0">
             <Cpu size={22} />
           </div>
         </div>
 
-        <div className="bg-[#0B0F19] p-5 rounded-2xl border border-slate-800/80 shadow-xl flex items-center justify-between">
+        <div className="bg-[#0B0F19] p-5 rounded-2xl border border-slate-800/80 shadow-xl flex items-center justify-between min-h-[96px]">
           <div>
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Mitigations (24h)</span>
             <p className="text-2xl font-black text-emerald-400 mt-1 font-mono">148</p>
             <span className="text-[10px] text-slate-500">Auto-dropped attack streams</span>
           </div>
-          <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+          <div className="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 flex-shrink-0">
             <Zap size={22} />
           </div>
         </div>
 
-        <div className="bg-[#0B0F19] p-5 rounded-2xl border border-slate-800/80 shadow-xl flex items-center justify-between">
+        <div className="bg-[#0B0F19] p-5 rounded-2xl border border-slate-800/80 shadow-xl flex items-center justify-between min-h-[96px]">
           <div>
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">SOAR Response Latency</span>
             <p className="text-2xl font-black text-purple-400 mt-1 font-mono">&lt; 12ms</p>
             <span className="text-[10px] text-slate-500">Detection to Shunning delay</span>
           </div>
-          <div className="w-11 h-11 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+          <div className="w-11 h-11 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 flex-shrink-0">
             <Activity size={22} />
           </div>
         </div>
@@ -219,13 +219,15 @@ export const FirewallCenterPage = () => {
         {lastMessage && (
           <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-emerald-300 font-mono flex items-center justify-between">
             <span>{lastMessage.text}</span>
-            <button onClick={() => setLastMessage(null)} className="text-slate-400 hover:text-white">✕</button>
+            <button onClick={() => setLastMessage(null)} className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+              <X size={14} />
+            </button>
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
           <div className="md:col-span-4">
-            <label className="text-xs font-semibold text-slate-400 block mb-1 font-mono">Attacker Target IP:</label>
+            <label className="text-xs font-semibold text-slate-400 block mb-1.5 font-mono">Attacker Target IP:</label>
             <input
               type="text"
               value={blockIpInput}
@@ -236,7 +238,7 @@ export const FirewallCenterPage = () => {
           </div>
 
           <div className="md:col-span-5">
-            <label className="text-xs font-semibold text-slate-400 block mb-1">Shun Reason / Justification:</label>
+            <label className="text-xs font-semibold text-slate-400 block mb-1.5">Shun Reason / Justification:</label>
             <input
               type="text"
               value={blockReasonInput}
@@ -246,14 +248,14 @@ export const FirewallCenterPage = () => {
             />
           </div>
 
-          <div className="md:col-span-3 flex items-end">
+          <div className="md:col-span-3">
             <button
               onClick={() => handleExecuteBlock()}
               disabled={executing || !blockIpInput.trim()}
-              className="w-full py-2.5 px-4 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 disabled:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-lg shadow-rose-600/30 border border-rose-400/30 flex items-center justify-center gap-2 transition"
+              className="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-500 disabled:bg-slate-800 text-white font-semibold text-xs rounded-xl shadow-md shadow-rose-600/20 border border-rose-500/30 flex items-center justify-center gap-2 transition"
             >
-              {executing ? <RefreshCw size={15} className="animate-spin" /> : <Lock size={15} />}
-              {executing ? 'Applying OS Rule...' : '⚡ Execute SOAR Block'}
+              {executing ? <RefreshCw size={14} className="animate-spin" /> : <ShieldAlert size={14} />}
+              <span>{executing ? 'Applying OS Rule...' : 'Execute SOAR Block'}</span>
             </button>
           </div>
         </div>
@@ -315,9 +317,11 @@ export const FirewallCenterPage = () => {
               ) : (
                 filteredRules.map((rule, idx) => (
                   <tr key={idx} className="hover:bg-slate-900/40 transition-colors">
-                    <td className="p-4 font-mono font-bold text-rose-400 flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-rose-500"></span>
-                      {rule.source_ip}
+                    <td className="p-4 font-mono font-bold text-rose-400">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                        <span>{rule.source_ip}</span>
+                      </div>
                     </td>
 
                     <td className="p-4 text-slate-200 font-medium max-w-xs truncate">

@@ -5,14 +5,6 @@ import ToastNotification from '../components/ToastNotification';
 import SendIPReportModal from '../components/SendIPReportModal';
 import FirewallRuleModal from '../components/FirewallRuleModal';
 
-const getFlagEmoji = (countryCode) => {
-  if (!countryCode || countryCode === 'INT' || countryCode === 'UN') return '🌐';
-  const codePoints = countryCode
-    .toUpperCase()
-    .split('')
-    .map(char => 127397 + char.charCodeAt(0));
-  return String.fromCodePoint(...codePoints);
-};
 
 export const IPInvestigationPage = () => {
   const [ipInput, setIpInput] = useState('185.220.101.5');
@@ -53,7 +45,7 @@ export const IPInvestigationPage = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-[1600px] mx-auto">
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto w-full pb-10">
       <ToastNotification type={toast?.type} message={toast?.message} onClose={() => setToast(null)} />
 
       {/* Header */}
@@ -67,29 +59,38 @@ export const IPInvestigationPage = () => {
 
       {/* Search & Action Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-        <div className="glass-panel p-4 rounded-xl flex items-center gap-3 max-w-xl flex-1">
-          <form onSubmit={handleSearch} className="flex items-center gap-3 w-full">
+        <div className="bezel-panel p-3 flex items-center gap-3 max-w-xl flex-1">
+          <form onSubmit={handleSearch} className="flex items-center gap-2.5 w-full">
             <div className="relative flex-1">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500"><Search size={16} /></span>
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500"><Search size={15} /></span>
               <input
                 type="text"
                 value={ipInput}
                 onChange={(e) => setIpInput(e.target.value)}
                 placeholder="Enter IP address e.g. 185.220.101.5"
-                className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                className="w-full pl-9 pr-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-mono"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-lg transition-colors border border-blue-400/30 flex items-center gap-1.5"
+              className="group relative px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-lg transition-colors border border-blue-400/30 flex items-center gap-2 active:translate-y-px"
             >
-              {loading ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span> : 'Investigate'}
+              {loading ? (
+                <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              ) : (
+                <>
+                  <span className="w-4 h-4 rounded bg-white/10 flex items-center justify-center">
+                    <Search size={11} />
+                  </span>
+                  <span>Investigate</span>
+                </>
+              )}
             </button>
           </form>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={async () => {
               const target = ipData?.ip_address || ipInput || '185.220.101.5';
@@ -98,30 +99,36 @@ export const IPInvestigationPage = () => {
                   source_ip: target,
                   reason: 'SOAR Auto-Mitigation Triggered via IP Forensic Console'
                 });
-                setToast({ type: 'success', message: `⚡ SOAR Firewall Block Executed for ${target}! (${res.data.platform})` });
+                setToast({ type: 'success', message: `SOAR Firewall Block Executed for ${target}! (${res.data.platform})` });
               } catch (err) {
                 setToast({ type: 'success', message: `SOAR Active Block policy registered for ${target}` });
               }
             }}
-            className="px-4 py-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-bold rounded-xl border border-red-400/40 shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 transition-all"
+            className="group relative px-3.5 py-2.5 bg-red-600 hover:bg-red-500 text-white text-xs font-semibold rounded-lg border border-red-500/40 shadow-md shadow-red-600/20 flex items-center gap-2 transition-all active:translate-y-px"
           >
-            <ShieldAlert size={16} />
-            <span>⚡ Execute SOAR Block</span>
+            <span className="w-4 h-4 rounded bg-white/10 flex items-center justify-center">
+              <ShieldAlert size={12} />
+            </span>
+            <span>Execute SOAR Block</span>
           </button>
 
           <button
             onClick={() => setIsFirewallModalOpen(true)}
-            className="px-4 py-3 bg-cyan-600/90 hover:bg-cyan-500 text-white text-xs font-semibold rounded-xl border border-cyan-400/40 shadow-lg shadow-cyan-600/20 flex items-center justify-center gap-2 transition-all"
+            className="group relative px-3.5 py-2.5 bg-cyan-600/90 hover:bg-cyan-500 text-white text-xs font-semibold rounded-lg border border-cyan-400/40 shadow-lg shadow-cyan-600/20 flex items-center gap-2 transition-all active:translate-y-px"
           >
-            <ShieldAlert size={16} />
+            <span className="w-4 h-4 rounded bg-white/10 flex items-center justify-center">
+              <ShieldAlert size={12} />
+            </span>
             <span>Rule Syntax</span>
           </button>
 
           <button
             onClick={() => setIsMailModalOpen(true)}
-            className="px-4 py-3 bg-indigo-600/90 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl border border-indigo-400/40 shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 transition-all"
+            className="group relative px-3.5 py-2.5 bg-indigo-600/90 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg border border-indigo-400/40 shadow-lg shadow-indigo-600/20 flex items-center gap-2 transition-all active:translate-y-px"
           >
-            <Mail size={16} />
+            <span className="w-4 h-4 rounded bg-white/10 flex items-center justify-center">
+              <Mail size={12} />
+            </span>
             <span>Dispatch Email</span>
           </button>
 
@@ -134,9 +141,11 @@ export const IPInvestigationPage = () => {
                 })
               );
             }}
-            className="px-4 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white text-xs font-bold rounded-xl border border-blue-400/40 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 transition-all"
+            className="group relative px-3.5 py-2.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white text-xs font-semibold rounded-lg border border-blue-400/40 shadow-lg shadow-blue-600/20 flex items-center gap-2 transition-all active:translate-y-px"
           >
-            <Bot size={16} />
+            <span className="w-4 h-4 rounded bg-white/10 flex items-center justify-center">
+              <Bot size={12} />
+            </span>
             <span>Ask AI Copilot</span>
           </button>
         </div>
@@ -155,34 +164,53 @@ export const IPInvestigationPage = () => {
         initialDestinationIp={ipData?.destination_ips?.[0] || '10.0.0.1'}
       />
 
+      {/* Loading Skeleton */}
+      {loading && !ipData && (
+        <div className="bezel-card p-12 flex flex-col items-center justify-center gap-3 min-h-[300px]">
+          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-xs font-mono text-slate-400 tracking-wider">RETRIEVING FORENSIC IP TELEMETRY & GEO-INTELLIGENCE...</span>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!ipData && !loading && (
+        <div className="bezel-card p-12 text-center space-y-3 min-h-[300px] flex flex-col items-center justify-center">
+          <Globe className="w-10 h-10 text-slate-600" />
+          <h3 className="text-sm font-bold text-white">No Telemetry Record Found</h3>
+          <p className="text-xs text-slate-400 max-w-md">
+            No active network flows or forensic data found for <code className="text-blue-400 font-mono bg-blue-950/40 px-1 py-0.5 rounded">{ipInput}</code>. Enter another IP address above to investigate.
+          </p>
+        </div>
+      )}
+
       {/* IP Telemetry Summary */}
       {ipData && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="glass-card p-5 rounded-xl border border-slate-800">
+            <div className="bezel-card p-5">
               <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1">Target Host IP</span>
               <div className="text-xl font-bold text-white font-mono">{ipData.ip_address}</div>
             </div>
 
-            <div className="glass-card p-5 rounded-xl border border-slate-800">
+            <div className="bezel-card p-5">
               <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1">Total Flow Connections</span>
-              <div className="text-xl font-bold text-blue-400 font-mono">{ipData.total_connections}</div>
+              <div className="text-xl font-bold text-blue-400 font-mono tabular-nums">{ipData.total_connections}</div>
             </div>
 
-            <div className="glass-card p-5 rounded-xl border border-slate-800">
+            <div className="bezel-card p-5">
               <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1">Malicious Attacks</span>
-              <div className="text-xl font-bold text-red-400 font-mono">{ipData.attack_count}</div>
+              <div className="text-xl font-bold text-red-400 font-mono tabular-nums">{ipData.attack_count}</div>
             </div>
 
-            <div className={`glass-card p-5 rounded-xl border ${getThreatColor(ipData.threat_score)}`}>
+            <div className={`bezel-card p-5 ${getThreatColor(ipData.threat_score)}`}>
               <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1">Threat Rating</span>
-              <div className="text-xl font-black font-mono">{ipData.threat_score} / 100 ({ipData.threat_level})</div>
+              <div className="text-xl font-black font-mono tabular-nums">{ipData.threat_score} / 100 ({ipData.threat_level})</div>
             </div>
           </div>
 
           {/* Threat Intelligence & Geo-Reputation Panel */}
           {ipData.threat_intelligence && (
-            <div className="glass-card p-6 rounded-2xl border border-slate-800 bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-slate-950/80 space-y-4">
+            <div className="bezel-card p-6 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl">
@@ -208,10 +236,12 @@ export const IPInvestigationPage = () => {
                 <div className="p-3.5 bg-slate-950/70 border border-slate-800/80 rounded-xl space-y-1">
                   <span className="text-slate-500 uppercase text-[10px] block font-sans">Location & Country</span>
                   <div className="text-white font-bold text-sm flex items-center gap-2">
-                    <span className="text-base">{getFlagEmoji(ipData.threat_intelligence.country_code)}</span>
-                    <span>{ipData.threat_intelligence.country}</span>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase font-semibold">
+                      {ipData.threat_intelligence.country_code || 'GEO'}
+                    </span>
+                    <span>{ipData.threat_intelligence.country || 'Unknown'}</span>
                   </div>
-                  <span className="text-slate-400 text-[11px] block">{ipData.threat_intelligence.city}</span>
+                  <span className="text-slate-400 text-[11px] block">{ipData.threat_intelligence.city || 'N/A'}</span>
                 </div>
 
                 <div className="p-3.5 bg-slate-950/70 border border-slate-800/80 rounded-xl space-y-1">
@@ -235,16 +265,16 @@ export const IPInvestigationPage = () => {
                   <span className="text-slate-500 uppercase text-[10px] block font-sans">Classification</span>
                   <div className="flex flex-wrap gap-1.5 pt-0.5">
                     {ipData.threat_intelligence.is_tor_exit_node && (
-                      <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-300 border border-red-500/40 text-[10px]">🧅 Tor Exit</span>
+                      <span className="px-2 py-0.5 rounded bg-red-500/15 text-red-300 border border-red-500/30 text-[10px] font-mono">Tor Exit</span>
                     )}
                     {ipData.threat_intelligence.is_known_proxy_vpn && (
-                      <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40 text-[10px]">🛡️ Proxy/VPN</span>
+                      <span className="px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/30 text-[10px] font-mono">Proxy / VPN</span>
                     )}
                     {ipData.threat_intelligence.is_botnet_member && (
-                      <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[10px]">🤖 Botnet</span>
+                      <span className="px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/30 text-[10px] font-mono">Botnet</span>
                     )}
                     {!ipData.threat_intelligence.is_tor_exit_node && !ipData.threat_intelligence.is_known_proxy_vpn && !ipData.threat_intelligence.is_botnet_member && (
-                      <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px]">✅ Standard Host</span>
+                      <span className="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-mono">Standard Host</span>
                     )}
                   </div>
                 </div>
@@ -256,8 +286,8 @@ export const IPInvestigationPage = () => {
                   <span className="text-slate-400 font-sans">Threat Tags:</span>
                   <div className="flex flex-wrap gap-1.5">
                     {ipData.threat_intelligence.threat_tags.map((tag, tIdx) => (
-                      <span key={tIdx} className="px-2.5 py-0.5 rounded-full bg-slate-800/90 text-slate-300 border border-slate-700 text-[10px]">
-                        🏷️ {tag}
+                      <span key={tIdx} className="px-2.5 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-mono">
+                        {tag}
                       </span>
                     ))}
                   </div>
@@ -268,7 +298,7 @@ export const IPInvestigationPage = () => {
 
           {/* Details Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="glass-card p-5 rounded-xl border border-slate-800 space-y-3 font-mono text-xs">
+            <div className="bezel-card p-5 space-y-3 font-mono text-xs">
               <h3 className="text-sm font-bold text-white uppercase tracking-wider font-sans mb-2">Targeted Destinations</h3>
               <div className="space-y-1">
                 {ipData.destination_ips?.map((ip, i) => (
@@ -277,7 +307,7 @@ export const IPInvestigationPage = () => {
               </div>
             </div>
 
-            <div className="glass-card p-5 rounded-xl border border-slate-800 space-y-3 font-mono text-xs">
+            <div className="bezel-card p-5 space-y-3 font-mono text-xs">
               <h3 className="text-sm font-bold text-white uppercase tracking-wider font-sans mb-2">Ports & Protocols</h3>
               <div>
                 <span className="text-slate-400 block mb-1">Ports Accessed:</span>
@@ -297,7 +327,7 @@ export const IPInvestigationPage = () => {
               </div>
             </div>
 
-            <div className="glass-card p-5 rounded-xl border border-slate-800 space-y-3 text-xs font-mono">
+            <div className="bezel-card p-5 space-y-3 text-xs font-mono">
               <h3 className="text-sm font-bold text-white uppercase tracking-wider font-sans mb-2">First / Last Seen</h3>
               <div><span className="text-slate-400">First Seen:</span> <div className="text-white">{ipData.first_seen}</div></div>
               <div><span className="text-slate-400">Last Seen:</span> <div className="text-white">{ipData.last_seen}</div></div>
@@ -305,7 +335,7 @@ export const IPInvestigationPage = () => {
           </div>
 
           {/* Historical Activity Timeline */}
-          <div className="glass-card p-5 rounded-xl border border-slate-800 space-y-4">
+          <div className="bezel-card p-5 space-y-4">
             <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
               <Clock size={16} className="text-blue-400" />
               Historical Connection Flow Timeline
@@ -327,9 +357,9 @@ export const IPInvestigationPage = () => {
                 <tbody className="divide-y divide-slate-800/60">
                   {ipData.timeline?.map((item, idx) => (
                     <tr key={idx} className="hover:bg-slate-800/40">
-                      <td className="px-3 py-2 text-slate-400">{new Date(item.timestamp).toLocaleTimeString()}</td>
-                      <td className="px-3 py-2 text-white">{item.destination_ip}</td>
-                      <td className="px-3 py-2 text-purple-400">:{item.destination_port}</td>
+                      <td className="px-3 py-2 text-slate-400">{item.timestamp ? new Date(item.timestamp).toLocaleTimeString() : 'N/A'}</td>
+                      <td className="px-3 py-2 text-white">{item.destination_ip || 'N/A'}</td>
+                      <td className="px-3 py-2 text-purple-400">:{item.destination_port || '0'}</td>
                       <td className="px-3 py-2 text-slate-300">{item.protocol}</td>
                       <td className={`px-3 py-2 font-bold ${item.prediction === 'Normal' ? 'text-emerald-400' : 'text-red-400'}`}>
                         {item.prediction}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Shield, Lock, User, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Shield, Lock, User, Eye, EyeOff, ArrowRight, ShieldCheck, Terminal } from 'lucide-react';
 import ToastNotification from '../components/ToastNotification';
 
 export const LoginPage = () => {
@@ -51,10 +51,9 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#070A12] flex items-center justify-center p-6 relative overflow-hidden">
-      {/* Background Glow */}
+    <div className="min-h-screen bg-[#06090F] flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Background Precision Grid */}
       <div className="absolute inset-0 bg-[radial-gradient(#1E293B_1px,transparent_1px)] [background-size:32px_32px] opacity-20 pointer-events-none"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-blue-600/10 blur-[130px] rounded-full pointer-events-none"></div>
 
       <ToastNotification
         type={toast?.type}
@@ -62,42 +61,45 @@ export const LoginPage = () => {
         onClose={() => setToast(null)}
       />
 
-      <div className="glass-card max-w-md w-full p-8 rounded-2xl border border-slate-800 shadow-2xl relative z-10">
+      <div className="bezel-card max-w-md w-full p-8 shadow-2xl relative z-10">
         {/* Header Logo */}
         <div className="flex flex-col items-center text-center mb-8">
-          <div className="w-12 h-12 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 mb-3 shadow-lg shadow-blue-600/20">
-            <Shield size={28} className="animate-pulse" />
+          <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-3 shadow-inner">
+            <Shield size={26} />
           </div>
-          <h2 className="text-2xl font-bold text-white tracking-tight">SOC Portal Login</h2>
+          <h2 className="text-xl font-bold text-white tracking-tight">SOC Portal Login</h2>
           <p className="text-slate-400 text-xs mt-1">Authenticate to access Network Intrusion Detection System</p>
         </div>
 
         {/* Quick Fill Demo Accounts */}
-        <div className="mb-6 p-3 bg-slate-900/60 border border-slate-800 rounded-xl">
-          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+        <div className="mb-6 p-3 bg-[#0B0F19] border border-slate-800 rounded-xl">
+          <div className="text-[10px] font-mono font-semibold text-slate-400 uppercase tracking-wider mb-2.5 flex items-center justify-between">
             <span>Quick Fill Demo Presets:</span>
           </div>
-          <div className="grid grid-cols-3 gap-1.5">
+          <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
               onClick={() => { setUsernameOrEmail('admin'); setPassword('Admin123!'); }}
-              className="py-1.5 px-2 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-400 text-xs font-medium rounded-lg transition-colors text-center"
+              className="py-1.5 px-2 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5"
             >
-              👑 Admin
+              <ShieldCheck size={13} className="text-blue-400" />
+              <span>Admin</span>
             </button>
             <button
               type="button"
               onClick={() => { setUsernameOrEmail('analyst'); setPassword('Analyst123!'); }}
-              className="py-1.5 px-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-medium rounded-lg transition-colors text-center"
+              className="py-1.5 px-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5"
             >
-              🛡️ Analyst
+              <Terminal size={13} className="text-emerald-400" />
+              <span>Analyst</span>
             </button>
             <button
               type="button"
               onClick={() => { setUsernameOrEmail('viewer'); setPassword('Viewer123!'); }}
-              className="py-1.5 px-2 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-400 text-xs font-medium rounded-lg transition-colors text-center"
+              className="py-1.5 px-2 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5"
             >
-              👁️ Viewer
+              <Eye size={13} className="text-purple-400" />
+              <span>Viewer</span>
             </button>
           </div>
         </div>

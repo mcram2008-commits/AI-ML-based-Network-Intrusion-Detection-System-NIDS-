@@ -65,17 +65,17 @@ export default function AdversarialBenchWidget({ onModelHardened }) {
   };
 
   return (
-    <div className="glass-card p-6 rounded-2xl border border-rose-500/30 bg-slate-900/90 shadow-2xl space-y-5">
+    <div className="bezel-card p-6 shadow-2xl space-y-5">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400">
-            <Crosshair className="w-6 h-6 animate-pulse" />
+            <Crosshair className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-base font-bold text-white">Adversarial ML & Model Hardening Bench</h3>
-              <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 font-mono">FGSM EVASION BENCH</span>
+              <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-300 border border-rose-500/30 font-mono">FGSM EVASION BENCH</span>
             </div>
             <p className="text-xs text-slate-400">Simulate feature perturbations (packet jitter, byte padding) to test classifier evasion resilience</p>
           </div>
@@ -100,10 +100,10 @@ export default function AdversarialBenchWidget({ onModelHardened }) {
           <button
             onClick={handleEvaluate}
             disabled={evaluating}
-            className="px-4 py-2 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-rose-600/30 border border-rose-400/30 flex items-center gap-2 transition-all disabled:opacity-50"
+            className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs rounded-xl shadow-md shadow-rose-600/20 border border-rose-500/30 flex items-center gap-2 transition-all disabled:opacity-50"
           >
             {evaluating ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
-            <span>{evaluating ? 'Running Stress Test...' : '🥊 Run Evasion Bench'}</span>
+            <span>{evaluating ? 'Running Stress Test...' : 'Run Evasion Benchmark'}</span>
           </button>
         </div>
       </div>
@@ -185,10 +185,10 @@ export default function AdversarialBenchWidget({ onModelHardened }) {
                 <button
                   onClick={handleHarden}
                   disabled={hardening}
-                  className="w-full py-2.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-purple-600/30 border border-purple-400/40 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                  className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs rounded-xl shadow-md shadow-indigo-600/20 border border-indigo-500/30 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
                 >
                   {hardening ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4 text-emerald-400" />}
-                  <span>{hardening ? 'Retraining Hardened Model...' : '🛡️ Retrain Hardened Model (Data Augmentation)'}</span>
+                  <span>{hardening ? 'Retraining Hardened Model...' : 'Retrain Hardened Model (Data Augmentation)'}</span>
                 </button>
               </div>
             </div>

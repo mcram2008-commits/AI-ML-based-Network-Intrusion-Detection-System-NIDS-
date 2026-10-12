@@ -4,47 +4,60 @@
 
 @layer base {
   body {
-    @apply bg-[#070A12] text-slate-100 font-sans antialiased selection:bg-blue-500 selection:text-white min-h-screen overflow-x-hidden;
+    @apply bg-[#06090F] text-slate-100 font-sans antialiased selection:bg-blue-600 selection:text-white min-h-screen overflow-x-hidden;
   }
 }
 
-/* Custom Scrollbars */
+/* Custom Cockpit Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0B0F19;
+  background: #06090F;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1F2937;
-  border-radius: 3px;
+  background: #1B2438;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #374151;
+  background: #2D3B59;
 }
 
+/* Double-Bezel Hardware Architecture (from high-end-visual-design) */
+.bezel-card {
+  position: relative;
+  background: rgba(14, 20, 34, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06), 0 12px 32px -4px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.bezel-card:hover {
+  border-color: rgba(59, 130, 246, 0.25);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1), 0 16px 40px -4px rgba(0, 0, 0, 0.65), 0 0 20px rgba(59, 130, 246, 0.05);
+}
+
+.bezel-panel {
+  background: rgba(11, 15, 25, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+}
+
+/* Backward-compatible glass classes upgraded to precision dark */
 .glass-panel {
-  background: rgba(17, 24, 39, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(13, 18, 31, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
 }
 
 .glass-card {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(59, 130, 246, 0.15);
-}
-
-.cyber-gradient-text {
-  background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 50%, #9333EA 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  background: rgba(14, 20, 34, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05), 0 8px 24px -2px rgba(0, 0, 0, 0.4);
 }
 
 .cyber-border {
-  border: 1px solid rgba(59, 130, 246, 0.25);
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.04);
 }

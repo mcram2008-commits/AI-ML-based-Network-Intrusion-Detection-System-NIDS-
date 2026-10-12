@@ -157,10 +157,10 @@ export default function AiPlaybookModal({ isOpen, onClose, alertData }) {
                 <button
                   onClick={handleExecuteBlock}
                   disabled={executingBlock || blockStatus?.success}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 flex items-center gap-2 shadow-lg shadow-red-600/30 transition disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-rose-600 hover:bg-rose-500 flex items-center gap-2 shadow-md shadow-rose-600/20 border border-rose-500/30 transition disabled:opacity-50"
                 >
                   <Shield size={14} />
-                  <span>{blockStatus?.success ? "⚡ IP Blocked in OS Firewall" : executingBlock ? "Applying Firewall Rule..." : "⚡ Execute SOAR Auto-Block"}</span>
+                  <span>{blockStatus?.success ? "IP Blocked in OS Firewall" : executingBlock ? "Applying Firewall Rule..." : "Execute SOAR Auto-Block"}</span>
                 </button>
               </div>
 
@@ -222,7 +222,7 @@ export default function AiPlaybookModal({ isOpen, onClose, alertData }) {
                 <ul className="space-y-1.5 bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-xs text-slate-300">
                   {playbook?.remediation_actions?.map((act, idx) => (
                     <li key={idx} className="flex items-start gap-2">
-                      <span className="text-emerald-400 font-bold">✓</span>
+                      <CheckCircle2 size={13} className="text-emerald-400 mt-0.5 flex-shrink-0" />
                       <span>{act}</span>
                     </li>
                   ))}

@@ -59,7 +59,7 @@ export const SettingsPage = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-4xl mx-auto">
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto w-full pb-10">
       <ToastNotification type={toast?.type} message={toast?.message} onClose={() => setToast(null)} />
 
       {/* Header */}
@@ -72,9 +72,9 @@ export const SettingsPage = () => {
       </div>
 
       {/* Settings Form */}
-      <form onSubmit={handleSubmit} className="glass-card p-8 rounded-2xl border border-slate-800 space-y-6 shadow-2xl">
+      <form onSubmit={handleSubmit} className="bezel-card max-w-4xl p-6 sm:p-8 space-y-6 shadow-2xl">
         <div className="space-y-4">
-          <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-800 pb-3">
+          <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2 border-b border-slate-800/80 pb-3 font-mono">
             <Cpu size={16} className="text-purple-400" />
             Active Machine Learning Engine
           </h2>
@@ -259,17 +259,19 @@ export const SettingsPage = () => {
           </div>
         </div>
 
-        <div className="flex justify-end pt-4 border-t border-slate-800">
+        <div className="flex justify-end pt-4 border-t border-slate-800/80">
           <button
             type="submit"
             disabled={saving}
-            className="px-6 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-all border border-blue-400/30 flex items-center gap-2 shadow-lg shadow-blue-600/20"
+            className="group relative inline-flex items-center gap-2.5 px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition-all border border-blue-400/30 shadow-lg shadow-blue-600/20 active:translate-y-px disabled:opacity-50"
           >
             {saving ? (
               <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
             ) : (
               <>
-                <Save size={16} />
+                <span className="w-5 h-5 rounded-md bg-white/10 flex items-center justify-center transition-colors group-hover:bg-white/20">
+                  <Save size={13} />
+                </span>
                 <span>Save System Settings</span>
               </>
             )}

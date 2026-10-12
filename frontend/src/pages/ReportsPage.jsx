@@ -46,49 +46,53 @@ export const ReportsPage = () => {
   }
 
   return (
-    <div className="p-6 space-y-6 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto w-full pb-10">
       <ToastNotification type={toast?.type} message={toast?.message} onClose={() => setToast(null)} />
 
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 print:hidden">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
-            <FileText className="text-emerald-400" size={24} />
-            Security Operations Executive Report
-          </h1>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+              <FileText size={18} />
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              Security Operations Executive Report
+            </h1>
+          </div>
           <p className="text-slate-400 text-xs mt-1">Comprehensive network threat audit, attack summaries, and defense recommendations</p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={() => setIsShareModalOpen(true)}
-            className="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-2 transition-all border border-emerald-400/30 shadow-lg shadow-emerald-600/20"
+            className="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-2 transition-all border border-emerald-400/30 shadow-sm"
           >
-            <Lock size={15} />
+            <Lock size={14} />
             <span>Share Secretly</span>
           </button>
 
           <button
             onClick={() => setIsMailModalOpen(true)}
-            className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-2 transition-all border border-indigo-400/30 shadow-lg shadow-indigo-600/20"
+            className="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-2 transition-all border border-indigo-400/30 shadow-sm"
           >
-            <Mail size={16} />
+            <Mail size={14} />
             <span>Send Incident Email</span>
           </button>
 
           <button
             onClick={handleExportCSV}
-            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-2 transition-all border border-blue-400/30 shadow-lg shadow-blue-600/20"
+            className="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-2 transition-all border border-blue-400/30 shadow-sm"
           >
-            <Download size={16} />
+            <Download size={14} />
             <span>Export CSV</span>
           </button>
 
           <button
             onClick={handlePrintPDF}
-            className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-2 transition-all border border-slate-700"
+            className="px-3.5 py-2 rounded-lg bg-[#0B0F19] hover:bg-slate-800 text-slate-200 text-xs font-semibold flex items-center gap-2 transition-all border border-slate-700/80"
           >
-            <Printer size={16} />
+            <Printer size={14} />
             <span>Print / PDF</span>
           </button>
         </div>
@@ -109,13 +113,12 @@ export const ReportsPage = () => {
         onToast={(t) => setToast(t)}
       />
 
-
       {/* Printable Report Document Card */}
-      <div className="glass-card p-8 rounded-2xl border border-slate-800 space-y-6 shadow-2xl text-slate-200 print:text-black print:bg-white print:p-0">
+      <div className="bezel-card p-6 sm:p-8 space-y-6 text-slate-200 print:text-black print:bg-white print:p-0">
         {/* Document Title */}
         <div className="flex justify-between items-center border-b border-slate-800 print:border-slate-300 pb-4">
           <div>
-            <h2 className="text-xl font-bold text-white print:text-black">AEGIS NIDS SECURITY AUDIT REPORT</h2>
+            <h2 className="text-lg font-bold text-white print:text-black">AEGIS NIDS SECURITY AUDIT REPORT</h2>
             <div className="text-xs text-slate-400 print:text-slate-600 font-mono mt-1">Generated: {report?.generated_at ? new Date(report.generated_at).toLocaleString() : 'N/A'}</div>
           </div>
           <div className="text-right text-xs font-mono text-slate-400">
@@ -125,22 +128,22 @@ export const ReportsPage = () => {
         </div>
 
         {/* Aggregate Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-950/60 p-4 rounded-xl border border-slate-800 font-mono">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-[#06090F] p-4 rounded-xl border border-slate-800 font-mono">
           <div>
             <span className="text-slate-500 text-[10px] block uppercase">Total Traffic</span>
-            <span className="text-lg font-bold text-white">{(report?.total_traffic_analyzed ?? 0).toLocaleString()}</span>
+            <span className="text-lg font-bold text-white tabular-nums">{(report?.total_traffic_analyzed ?? 0).toLocaleString()}</span>
           </div>
           <div>
             <span className="text-slate-500 text-[10px] block uppercase">Normal Flows</span>
-            <span className="text-lg font-bold text-emerald-400">{(report?.normal_traffic ?? 0).toLocaleString()}</span>
+            <span className="text-lg font-bold text-emerald-400 tabular-nums">{(report?.normal_traffic ?? 0).toLocaleString()}</span>
           </div>
           <div>
             <span className="text-slate-500 text-[10px] block uppercase">Attacks Detected</span>
-            <span className="text-lg font-bold text-red-400">{(report?.malicious_traffic ?? 0).toLocaleString()}</span>
+            <span className="text-lg font-bold text-red-400 tabular-nums">{(report?.malicious_traffic ?? 0).toLocaleString()}</span>
           </div>
           <div>
             <span className="text-slate-500 text-[10px] block uppercase">Detection Rate</span>
-            <span className="text-lg font-bold text-purple-300">{report?.detection_accuracy ?? 98.4}%</span>
+            <span className="text-lg font-bold text-purple-300 tabular-nums">{report?.detection_accuracy ?? 98.4}%</span>
           </div>
         </div>
 

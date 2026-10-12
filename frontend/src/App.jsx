@@ -34,11 +34,11 @@ import AiCopilotWidget from './components/AiCopilotWidget';
 
 
 const ProtectedLayout = ({ children }) => (
-  <div className="flex min-h-screen bg-[#070A12] text-slate-100 font-sans">
+  <div className="flex min-h-screen bg-[#06090F] text-slate-100 font-sans">
     <Sidebar />
-    <div className="flex-1 flex flex-col min-w-0">
+    <div className="flex-1 flex flex-col min-w-0 min-h-screen">
       <Navbar />
-      <main className="flex-1 p-2 sm:p-4 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto">
         {children}
       </main>
       <AiCopilotWidget />

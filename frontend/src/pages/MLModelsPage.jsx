@@ -65,32 +65,36 @@ export const MLModelsPage = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-[1600px] mx-auto">
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto w-full pb-10">
       <ToastNotification type={toast?.type} message={toast?.message} onClose={() => setToast(null)} />
 
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
-          <Cpu className="text-purple-400" size={24} />
-          Machine Learning Model Suite & Trainer
-        </h1>
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+            <Cpu size={18} />
+          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+            Machine Learning Model Suite & Trainer
+          </h1>
+        </div>
         <p className="text-slate-400 text-xs mt-1">Train & benchmark Random Forest, Decision Tree, Logistic Regression, SVM, Gradient Boosting, MLP Neural Network</p>
       </div>
 
       {/* Training Panel */}
-      <div className="glass-card p-6 rounded-xl border border-slate-800 space-y-4">
-        <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-          <Play size={16} className="text-emerald-400" />
+      <div className="bezel-card p-6 space-y-4">
+        <h2 className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+          <Play size={15} className="text-emerald-400" />
           Train New ML Classification Model
         </h2>
 
         <form onSubmit={handleTrain} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
           <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">Select Dataset</label>
+            <label className="block text-xs font-medium text-slate-400 mb-1">Select Dataset</label>
             <select
               value={selectedDatasetId}
               onChange={(e) => setSelectedDatasetId(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-white focus:outline-none"
+              className="w-full px-3 py-2 bg-[#06090F] border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:border-blue-500"
             >
               <option value={0}>Synthetic CICIDS2017 Sample (Default)</option>
               {datasets.map((d) => (
@@ -100,11 +104,11 @@ export const MLModelsPage = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">ML Algorithm</label>
+            <label className="block text-xs font-medium text-slate-400 mb-1">ML Algorithm</label>
             <select
               value={algorithm}
               onChange={(e) => setAlgorithm(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-white focus:outline-none"
+              className="w-full px-3 py-2 bg-[#06090F] border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:border-blue-500"
             >
               <option value="Random Forest">Random Forest Classifier</option>
               <option value="Decision Tree">Decision Tree Classifier</option>
@@ -116,11 +120,11 @@ export const MLModelsPage = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">Test Split Ratio</label>
+            <label className="block text-xs font-medium text-slate-400 mb-1">Test Split Ratio</label>
             <select
               value={testSize}
               onChange={(e) => setTestSize(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-white focus:outline-none"
+              className="w-full px-3 py-2 bg-[#06090F] border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:border-blue-500"
             >
               <option value={0.2}>80% Train / 20% Test</option>
               <option value={0.3}>70% Train / 30% Test</option>
@@ -131,7 +135,7 @@ export const MLModelsPage = () => {
           <button
             type="submit"
             disabled={training}
-            className="w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs rounded-lg transition-all border border-purple-400/30 flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20"
+            className="w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs rounded-lg transition-all border border-purple-400/30 flex items-center justify-center gap-2 shadow-sm"
           >
             {training ? (
               <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
@@ -146,30 +150,29 @@ export const MLModelsPage = () => {
       <AdversarialBenchWidget onModelHardened={fetchData} />
 
       {/* Leaderboard Table */}
-
       <div className="space-y-4">
-        <h2 className="text-lg font-bold text-white">Trained Model Performance Leaderboard ({models.length})</h2>
+        <h2 className="text-base font-bold text-white tracking-tight">Trained Model Performance Leaderboard ({models.length})</h2>
 
-        <div className="grid grid-cols-1 gap-6">
+        <div className="grid grid-cols-1 gap-5">
           {models.map((m) => (
-            <div key={m.id} className={`glass-card p-6 rounded-xl border ${m.is_active ? 'border-purple-500/50 shadow-purple-500/10 shadow-xl' : 'border-slate-800'} space-y-4`}>
+            <div key={m.id} className={`bezel-card p-5 space-y-4 ${m.is_active ? 'border-purple-500/40 shadow-sm' : ''}`}>
               <div className="flex flex-wrap justify-between items-start gap-4">
                 <div>
                   <div className="flex items-center gap-3">
-                    <h3 className="text-base font-bold text-white">{m.name}</h3>
+                    <h3 className="text-sm font-bold text-white">{m.name}</h3>
                     {m.is_active && (
-                      <span className="px-2.5 py-0.5 rounded text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/40 font-mono font-bold">
+                      <span className="px-2 py-0.5 rounded text-[10px] bg-purple-500/15 text-purple-300 border border-purple-500/30 font-mono font-medium">
                         ACTIVE EVALUATION MODEL
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-slate-400 font-mono mt-0.5">Algorithm: {m.algorithm} • Dataset: {m.dataset_name}</div>
+                  <div className="text-[11px] text-slate-400 font-mono mt-0.5">Algorithm: {m.algorithm} • Dataset: {m.dataset_name}</div>
                 </div>
 
                 {!m.is_active && (
                   <button
                     onClick={() => handleSelectActive(m.id)}
-                    className="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold border border-blue-400/30 transition-colors"
+                    className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium border border-blue-400/30 transition-colors shadow-sm"
                   >
                     Set Active Model
                   </button>
@@ -177,26 +180,26 @@ export const MLModelsPage = () => {
               </div>
 
               {/* Empirical Metrics Bar */}
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 bg-slate-950/60 p-4 rounded-lg border border-slate-800 text-xs font-mono">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 bg-[#06090F] p-3.5 rounded-lg border border-slate-800 text-xs font-mono">
                 <div>
                   <span className="text-slate-500 block text-[10px]">Accuracy</span>
-                  <span className="text-emerald-400 font-extrabold text-base">{m.accuracy}%</span>
+                  <span className="text-emerald-400 font-bold text-sm tabular-nums">{m.accuracy}%</span>
                 </div>
                 <div>
                   <span className="text-slate-500 block text-[10px]">Precision</span>
-                  <span className="text-blue-400 font-extrabold text-base">{m.precision}%</span>
+                  <span className="text-blue-400 font-bold text-sm tabular-nums">{m.precision}%</span>
                 </div>
                 <div>
                   <span className="text-slate-500 block text-[10px]">Recall</span>
-                  <span className="text-purple-400 font-extrabold text-base">{m.recall}%</span>
+                  <span className="text-purple-400 font-bold text-sm tabular-nums">{m.recall}%</span>
                 </div>
                 <div>
                   <span className="text-slate-500 block text-[10px]">F1 Score</span>
-                  <span className="text-amber-400 font-extrabold text-base">{m.f1_score}%</span>
+                  <span className="text-amber-400 font-bold text-sm tabular-nums">{m.f1_score}%</span>
                 </div>
                 <div>
                   <span className="text-slate-500 block text-[10px]">ROC-AUC</span>
-                  <span className="text-slate-200 font-extrabold text-base">{m.roc_auc}%</span>
+                  <span className="text-slate-200 font-bold text-sm tabular-nums">{m.roc_auc}%</span>
                 </div>
               </div>
             </div>

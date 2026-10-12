@@ -9,10 +9,10 @@ export const ProtectedRoute = ({ children, allowedRoles }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#070A12] flex items-center justify-center text-slate-300">
+      <div className="min-h-screen bg-[#06090F] flex items-center justify-center text-slate-300">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-sm font-medium tracking-wide">Authenticating SOC Session...</span>
+          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-xs font-mono text-slate-400 tracking-wide">AUTHENTICATING SOC SESSION...</span>
         </div>
       </div>
     );
@@ -33,17 +33,17 @@ export const ProtectedRoute = ({ children, allowedRoles }) => {
   if (!isAllowed) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center p-6">
-        <div className="glass-card max-w-md w-full p-8 rounded-xl text-center border border-red-500/30">
-          <div className="w-16 h-16 bg-red-500/10 text-red-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/20">
-            <ShieldAlert size={32} />
+        <div className="bezel-card max-w-md w-full p-8 text-center border border-red-500/30">
+          <div className="w-14 h-14 bg-red-500/10 text-red-400 rounded-xl flex items-center justify-center mx-auto mb-4 border border-red-500/20">
+            <ShieldAlert size={28} />
           </div>
           <h2 className="text-xl font-bold text-white mb-2">Access Restricted</h2>
-          <p className="text-slate-400 text-sm mb-6">
+          <p className="text-slate-400 text-xs mb-6">
             Your current role (<span className="text-amber-400 font-semibold">{user.role}</span>) does not have authorization to view this section. Requires: {allowedRoles.join(', ')}.
           </p>
           <button
             onClick={() => window.history.back()}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm rounded-lg transition-colors border border-slate-700"
+            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg transition-colors border border-slate-700"
           >
             Go Back
           </button>

@@ -54,27 +54,31 @@ export const IntrusionDetectionPage = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-5xl mx-auto">
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto w-full pb-10">
       <ToastNotification type={toast?.type} message={toast?.message} onClose={() => setToast(null)} />
 
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
-          <Search className="text-blue-400" size={24} />
-          Intrusion Detection Flow Analyzer
-        </h1>
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+            <Search size={18} />
+          </div>
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+            Intrusion Detection Flow Analyzer
+          </h1>
+        </div>
         <p className="text-slate-400 text-xs mt-1">Manual flow feature diagnostic pipeline & instant ML prediction engine</p>
       </div>
 
       {/* Presets Bar */}
-      <div className="glass-panel p-4 rounded-xl space-y-2">
+      <div className="bezel-card p-4 space-y-2">
         <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">Load Diagnostic Test Presets:</span>
         <div className="flex flex-wrap gap-2">
           {presets.map((p, idx) => (
             <button
               key={idx}
               onClick={() => setFormData(p.data)}
-              className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs text-blue-300 transition-colors"
+              className="px-3 py-1.5 rounded-lg bg-[#06090F] hover:bg-slate-800 border border-slate-700/80 text-xs text-blue-300 hover:text-white transition-colors"
             >
               {p.name}
             </button>
@@ -84,31 +88,31 @@ export const IntrusionDetectionPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Input Form */}
-        <div className="glass-card p-6 rounded-xl border border-slate-800 space-y-4">
-          <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-            <Zap size={16} className="text-amber-400" />
+        <div className="bezel-card p-6 space-y-4">
+          <h2 className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+            <Zap size={15} className="text-amber-400" />
             Network Flow Metrics Input
           </h2>
 
           <form onSubmit={handlePredict} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Source IP</label>
+                <label className="block text-xs font-medium text-slate-400 mb-1">Source IP</label>
                 <input
                   type="text"
                   value={formData.source_ip}
                   onChange={(e) => setFormData({ ...formData, source_ip: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-white"
+                  className="w-full px-3 py-2 bg-[#06090F] border border-slate-800 rounded-lg text-xs font-mono text-white placeholder-slate-600 focus:outline-none focus:border-blue-500"
                   required
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Destination IP</label>
+                <label className="block text-xs font-medium text-slate-400 mb-1">Destination IP</label>
                 <input
                   type="text"
                   value={formData.destination_ip}
                   onChange={(e) => setFormData({ ...formData, destination_ip: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-white"
+                  className="w-full px-3 py-2 bg-[#06090F] border border-slate-800 rounded-lg text-xs font-mono text-white placeholder-slate-600 focus:outline-none focus:border-blue-500"
                   required
                 />
               </div>
@@ -116,31 +120,31 @@ export const IntrusionDetectionPage = () => {
 
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Source Port</label>
+                <label className="block text-xs font-medium text-slate-400 mb-1">Source Port</label>
                 <input
                   type="number"
                   value={formData.source_port}
                   onChange={(e) => setFormData({ ...formData, source_port: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-white"
+                  className="w-full px-3 py-2 bg-[#06090F] border border-slate-800 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-blue-500"
                   required
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Dest Port</label>
+                <label className="block text-xs font-medium text-slate-400 mb-1">Destination Port</label>
                 <input
                   type="number"
                   value={formData.destination_port}
                   onChange={(e) => setFormData({ ...formData, destination_port: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-white"
+                  className="w-full px-3 py-2 bg-[#06090F] border border-slate-800 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-blue-500"
                   required
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Protocol</label>
+                <label className="block text-xs font-medium text-slate-400 mb-1">Protocol</label>
                 <select
                   value={formData.protocol}
                   onChange={(e) => setFormData({ ...formData, protocol: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-white"
+                  className="w-full px-3 py-2 bg-[#06090F] border border-slate-800 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-blue-500"
                 >
                   <option value="TCP">TCP</option>
                   <option value="UDP">UDP</option>
@@ -152,33 +156,33 @@ export const IntrusionDetectionPage = () => {
 
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Packet Count</label>
+                <label className="block text-xs font-medium text-slate-400 mb-1">Packet Count</label>
                 <input
                   type="number"
                   value={formData.packet_count}
                   onChange={(e) => setFormData({ ...formData, packet_count: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-white"
+                  className="w-full px-3 py-2 bg-[#06090F] border border-slate-800 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-blue-500"
                   required
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Byte Count</label>
+                <label className="block text-xs font-medium text-slate-400 mb-1">Byte Count</label>
                 <input
                   type="number"
                   value={formData.byte_count}
                   onChange={(e) => setFormData({ ...formData, byte_count: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-white"
+                  className="w-full px-3 py-2 bg-[#06090F] border border-slate-800 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-blue-500"
                   required
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">Duration (s)</label>
+                <label className="block text-xs font-medium text-slate-400 mb-1">Duration (s)</label>
                 <input
                   type="number"
                   step="0.01"
                   value={formData.duration}
                   onChange={(e) => setFormData({ ...formData, duration: parseFloat(e.target.value) })}
-                  className="w-full px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-white"
+                  className="w-full px-3 py-2 bg-[#06090F] border border-slate-800 rounded-lg text-xs font-mono text-white focus:outline-none focus:border-blue-500"
                   required
                 />
               </div>
@@ -187,13 +191,13 @@ export const IntrusionDetectionPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-lg transition-all border border-blue-400/30 flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20"
+              className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-lg transition-all border border-blue-400/30 flex items-center justify-center gap-2 shadow-md shadow-blue-600/20"
             >
               {loading ? (
                 <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
               ) : (
                 <>
-                  <Cpu size={16} />
+                  <Cpu size={15} />
                   <span>Execute ML Model Prediction</span>
                 </>
               )}
@@ -202,9 +206,9 @@ export const IntrusionDetectionPage = () => {
         </div>
 
         {/* Prediction Results Display */}
-        <div className="glass-card p-6 rounded-xl border border-slate-800 space-y-6 flex flex-col justify-between">
-          <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-            <Cpu size={16} className="text-purple-400" />
+        <div className="bezel-card p-6 space-y-6 flex flex-col justify-between">
+          <h2 className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+            <Cpu size={15} className="text-purple-400" />
             ML Classification Diagnosis
           </h2>
 

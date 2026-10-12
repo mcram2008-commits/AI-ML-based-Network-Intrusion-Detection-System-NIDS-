@@ -68,25 +68,29 @@ export const LiveMonitoringPage = () => {
 
   const getSeverityBadge = (sev) => {
     const map = {
-      LOW: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30',
-      MEDIUM: 'bg-amber-500/10 text-amber-400 border-amber-500/30',
-      HIGH: 'bg-orange-500/10 text-orange-400 border-orange-500/30',
-      CRITICAL: 'bg-red-500/20 text-red-400 border-red-500/40 font-bold animate-pulse'
+      LOW: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+      MEDIUM: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+      HIGH: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+      CRITICAL: 'bg-red-500/15 text-red-400 border-red-500/30 font-semibold'
     };
     return map[sev] || map.LOW;
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-[1600px] mx-auto">
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto w-full pb-10">
       <ToastNotification type={toast?.type} message={toast?.message} onClose={() => setToast(null)} />
 
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
-            <Activity className="text-emerald-400 animate-pulse" size={24} />
-            Live Network Flow Monitoring
-          </h1>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+              <Activity size={18} />
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              Live Network Flow Monitoring
+            </h1>
+          </div>
           <p className="text-slate-400 text-xs mt-1">Real-time packet capture telemetry streaming & instant ML threat classification</p>
         </div>
 
@@ -94,20 +98,20 @@ export const LiveMonitoringPage = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsStreaming(!isStreaming)}
-            className={`px-4 py-2 rounded-lg border text-xs font-semibold flex items-center gap-2 transition-all ${
+            className={`px-3.5 py-2 rounded-lg border text-xs font-semibold flex items-center gap-2 transition-all ${
               isStreaming
-                ? 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-amber-500/40'
-                : 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border-emerald-500/40'
+                ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border-amber-500/30'
+                : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
             }`}
           >
             {isStreaming ? (
               <>
-                <Pause size={16} />
+                <Pause size={15} />
                 <span>Pause Live Stream</span>
               </>
             ) : (
               <>
-                <Play size={16} />
+                <Play size={15} />
                 <span>Resume Live Stream</span>
               </>
             )}
@@ -115,9 +119,9 @@ export const LiveMonitoringPage = () => {
 
           <button
             onClick={triggerLiveTick}
-            className="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium border border-blue-400/30 flex items-center gap-1.5 transition-colors"
+            className="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold border border-blue-400/30 flex items-center gap-1.5 transition-colors shadow-sm"
           >
-            <RefreshCw size={14} />
+            <RefreshCw size={13} />
             <span>Generate Flow Tick</span>
           </button>
         </div>
@@ -129,25 +133,24 @@ export const LiveMonitoringPage = () => {
       {/* Traffic Simulator Controls */}
       <SimulatorControlWidget />
 
-
       {/* Filters Toolbar */}
-      <div className="glass-panel p-4 rounded-xl flex flex-wrap items-center justify-between gap-4">
+      <div className="bezel-card p-4 flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <div className="relative flex-1 sm:w-64">
-            <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500"><Search size={16} /></span>
+            <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500"><Search size={15} /></span>
             <input
               type="text"
               value={searchIP}
               onChange={(e) => setSearchIP(e.target.value)}
               placeholder="Search Source or Dest IP..."
-              className="w-full pl-9 pr-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+              className="w-full pl-9 pr-3 py-1.5 bg-[#06090F] border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-mono"
             />
           </div>
 
           <select
             value={severityFilter}
             onChange={(e) => setSeverityFilter(e.target.value)}
-            className="px-3 py-1.5 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-300 focus:outline-none focus:border-blue-500"
+            className="px-3 py-1.5 bg-[#06090F] border border-slate-800 rounded-lg text-xs text-slate-300 focus:outline-none focus:border-blue-500"
           >
             <option value="">All Threat Severities</option>
             <option value="LOW">LOW</option>
@@ -158,12 +161,12 @@ export const LiveMonitoringPage = () => {
         </div>
 
         <div className="text-xs text-slate-400 font-mono">
-          Showing <span className="text-blue-400 font-bold">{filteredFlows.length}</span> live flow records
+          Showing <span className="text-blue-400 font-bold tabular-nums">{filteredFlows.length}</span> live flow records
         </div>
       </div>
 
       {/* Live Flows Table */}
-      <div className="glass-card rounded-xl border border-slate-800 overflow-hidden shadow-2xl">
+      <div className="bezel-card overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-300">
             <thead className="bg-slate-900/90 text-slate-400 uppercase tracking-wider font-mono text-[10px] border-b border-slate-800">

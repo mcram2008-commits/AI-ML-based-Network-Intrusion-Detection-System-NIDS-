@@ -143,7 +143,7 @@ export const RouteOptimizationPage = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-[1600px] mx-auto text-slate-100">
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto w-full text-slate-100 pb-10">
       <ToastNotification type={toast?.type} message={toast?.message} onClose={() => setToast(null)} />
 
       {/* Header */}
@@ -183,9 +183,10 @@ export const RouteOptimizationPage = () => {
                 <button
                   type="button"
                   onClick={fetchRealSenderIp}
-                  className="text-xs bg-blue-500/20 text-blue-300 hover:bg-blue-500/30 px-2.5 py-1 rounded border border-blue-500/30 font-mono transition-all flex items-center gap-1"
+                  className="text-xs bg-blue-500/15 text-blue-300 hover:bg-blue-500/25 px-2.5 py-1 rounded border border-blue-500/30 font-mono transition-all flex items-center gap-1.5"
                 >
-                  🌐 Fetch My Real IP
+                  <Globe size={12} className="text-blue-400" />
+                  <span>Fetch My Real IP</span>
                 </button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -223,9 +224,10 @@ export const RouteOptimizationPage = () => {
                 <button
                   type="button"
                   onClick={fetchRealReceiverIp}
-                  className="text-xs bg-purple-500/20 text-purple-300 hover:bg-purple-500/30 px-2.5 py-1 rounded border border-purple-500/30 font-mono transition-all flex items-center gap-1"
+                  className="text-xs bg-purple-500/15 text-purple-300 hover:bg-purple-500/25 px-2.5 py-1 rounded border border-purple-500/30 font-mono transition-all flex items-center gap-1.5"
                 >
-                  🌐 Auto-Detect IP
+                  <Search size={12} className="text-purple-400" />
+                  <span>Auto-Detect IP</span>
                 </button>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -597,7 +599,7 @@ export const RouteOptimizationPage = () => {
 
                     <div className="flex items-center gap-2">
                       <a
-                        href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(dispatchResult.recipient_email)}&su=${encodeURIComponent(`🗺️ AEGIS Route Intelligence Report: ${analysis?.analysis_id}`)}&body=${encodeURIComponent(`Smart Route Intelligence Report\nAnalysis ID: ${analysis?.analysis_id}\nOptimal Route: ${analysis?.best_route?.route_name}\nThreat Score: ${analysis?.best_route?.threat_score}/100\nLatency: ${analysis?.best_route?.avg_latency_ms}ms\n\nPlease find full HTML report attached.`)}`}
+                        href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(dispatchResult.recipient_email)}&su=${encodeURIComponent(`AEGIS Route Intelligence Report: ${analysis?.analysis_id}`)}&body=${encodeURIComponent(`Smart Route Intelligence Report\nAnalysis ID: ${analysis?.analysis_id}\nOptimal Route: ${analysis?.best_route?.route_name}\nThreat Score: ${analysis?.best_route?.threat_score}/100\nLatency: ${analysis?.best_route?.avg_latency_ms}ms\n\nPlease find full HTML report attached.`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"

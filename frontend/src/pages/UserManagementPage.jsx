@@ -61,30 +61,34 @@ export const UserManagementPage = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-[1600px] mx-auto">
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto w-full pb-10">
       <ToastNotification type={toast?.type} message={toast?.message} onClose={() => setToast(null)} />
 
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2.5">
-            <Users className="text-purple-400" size={24} />
-            User & Role Management (Admin)
-          </h1>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+              <Users size={18} />
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              User & Role Management
+            </h1>
+          </div>
           <p className="text-slate-400 text-xs mt-1">Admin access panel to provision, manage roles, and revoke SOC analyst accounts</p>
         </div>
 
         <button
           onClick={() => setShowModal(true)}
-          className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-2 transition-all border border-blue-400/30 shadow-lg shadow-blue-600/20"
+          className="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-2 transition-all border border-blue-400/30 shadow-sm"
         >
-          <UserPlus size={16} />
+          <UserPlus size={15} />
           <span>Provision New User</span>
         </button>
       </div>
 
       {/* Users Grid Table */}
-      <div className="glass-card rounded-xl border border-slate-800 overflow-hidden shadow-2xl">
+      <div className="bezel-card overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-300 font-mono">
             <thead className="bg-slate-900/90 text-slate-400 uppercase text-[10px] border-b border-slate-800">
@@ -142,7 +146,7 @@ export const UserManagementPage = () => {
       {/* Add User Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-card max-w-md w-full p-6 rounded-xl border border-slate-700 shadow-2xl space-y-4">
+          <div className="bezel-card max-w-md w-full p-6 shadow-2xl space-y-4">
             <h3 className="text-base font-bold text-white flex items-center gap-2">
               <UserPlus className="text-blue-400" size={18} />
               Provision New SOC User Account

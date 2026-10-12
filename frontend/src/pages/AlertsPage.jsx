@@ -28,7 +28,7 @@ export const AlertsPage = () => {
         source_ip: ip,
         reason: 'SOAR One-Click Active Mitigation from Alerts Console'
       });
-      setToast({ type: 'success', message: `⚡ SOAR Block Executed for IP ${ip}! (${res.data.platform})` });
+      setToast({ type: 'success', message: `SOAR Block Executed for IP ${ip}! (${res.data.platform})` });
     } catch (err) {
       setToast({ type: 'success', message: `SOAR Active Block policy registered for IP ${ip}` });
     }
@@ -74,7 +74,7 @@ export const AlertsPage = () => {
   const canEdit = hasRole(['Admin', 'Security Analyst']);
 
   return (
-    <div className="p-6 space-y-6 max-w-[1600px] mx-auto">
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto w-full pb-10">
       <ToastNotification type={toast?.type} message={toast?.message} onClose={() => setToast(null)} />
 
       {/* Header */}
@@ -137,7 +137,7 @@ export const AlertsPage = () => {
       </div>
 
       {/* Alerts Table */}
-      <div className="glass-card rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
+      <div className="bezel-card overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
@@ -206,10 +206,10 @@ export const AlertsPage = () => {
                         <button
                           onClick={() => handleQuickSoarBlock(a.source_ip)}
                           title="Execute SOAR Auto-Mitigation Firewall Rule"
-                          className="px-2 py-1 rounded bg-red-950/80 hover:bg-red-900 text-red-300 text-[11px] font-bold border border-red-800/80 transition-colors inline-flex items-center gap-1 shadow-sm"
+                          className="px-2 py-1 rounded bg-red-950/80 hover:bg-red-900 text-red-300 text-[11px] font-semibold border border-red-800/80 transition-colors inline-flex items-center gap-1 shadow-sm"
                         >
                           <Shield size={12} className="text-red-400" />
-                          <span>⚡ Block IP</span>
+                          <span>Block IP</span>
                         </button>
 
                         <button
@@ -266,7 +266,7 @@ export const AlertsPage = () => {
       {/* Triage Status Modal */}
       {selectedAlert && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-card max-w-md w-full p-6 rounded-xl border border-slate-700 shadow-2xl space-y-4">
+          <div className="bezel-card max-w-md w-full p-6 shadow-2xl space-y-4">
             <h3 className="text-base font-bold text-white flex items-center gap-2">
               <ShieldAlert className="text-amber-400" size={18} />
               Triage Incident: {selectedAlert.alert_code}

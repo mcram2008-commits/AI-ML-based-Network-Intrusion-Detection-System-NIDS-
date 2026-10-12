@@ -71,7 +71,7 @@ export const SendIPReportModal = ({
         onClose={() => setToast(null)}
       />
 
-      <div className="glass-card w-full max-w-3xl bg-[#0B1120] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bezel-card w-full max-w-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
           <div className="flex items-center gap-3">
@@ -245,7 +245,7 @@ export const SendIPReportModal = ({
                 {/* Alternative Direct Webmail / Client Launchers */}
                 <div className="flex items-center gap-2">
                   <a
-                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(dispatchResult.recipient)}&su=${encodeURIComponent(`🛡️ NIDS Incident Report: ${sourceIp} ➔ ${destinationIp}`)}&body=${encodeURIComponent(`NIDS Security Report\nSource IP: ${sourceIp}\nDestination IP: ${destinationIp}\nAnalyst Notes: ${notes || 'None'}\n\nPlease check full report in SOC console.`)}`}
+                    href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(dispatchResult.recipient)}&su=${encodeURIComponent(`NIDS Incident Report: ${sourceIp} -> ${destinationIp}`)}&body=${encodeURIComponent(`NIDS Security Report\nSource IP: ${sourceIp}\nDestination IP: ${destinationIp}\nAnalyst Notes: ${notes || 'None'}\n\nPlease check full report in SOC console.`)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"

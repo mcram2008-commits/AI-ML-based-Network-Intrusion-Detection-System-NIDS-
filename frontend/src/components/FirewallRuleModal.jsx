@@ -201,17 +201,17 @@ export default function FirewallRuleModal({ isOpen, onClose, sourceIp }) {
                   source_ip: sourceIp || '185.220.101.5',
                   reason: 'Manual SOAR Auto-Mitigation Triggered via Modal'
                 });
-                alert(`⚡ SOAR Auto-Mitigation Executed!\n\n${res.data.message}\nCommand: ${res.data.command_executed}`);
+                alert(`SOAR Auto-Mitigation Executed!\n\n${res.data.message}\nCommand: ${res.data.command_executed}`);
               } catch (err) {
                 alert(`SOAR Block Registered for IP ${sourceIp}`);
               } finally {
                 setLoading(false);
               }
             }}
-            className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 flex items-center gap-1.5 shadow-lg shadow-red-600/30 border border-red-400/30 transition"
+            className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-rose-600 hover:bg-rose-500 flex items-center gap-1.5 shadow-md shadow-rose-600/20 border border-rose-500/30 transition"
           >
             <Shield className="w-4 h-4" />
-            ⚡ Execute SOAR Auto-Block
+            <span>Execute SOAR Auto-Block</span>
           </button>
 
         </div>

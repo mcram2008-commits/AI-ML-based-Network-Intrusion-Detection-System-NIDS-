@@ -128,18 +128,18 @@ export const AiCopilotPage = () => {
   ];
 
   return (
-    <div className="space-y-6 pb-8">
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto w-full pb-10">
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-slate-900 via-indigo-950/60 to-slate-900 p-6 rounded-2xl border border-indigo-500/30 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="flex items-center gap-4 relative z-10">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-purple-600 border border-blue-400/40 flex items-center justify-center text-white shadow-xl shadow-blue-500/20">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-purple-600 border border-blue-400/40 flex items-center justify-center text-white shadow-xl shadow-blue-500/20 flex-shrink-0">
             <Sparkles size={28} className="animate-pulse" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-black text-white tracking-tight">AI Security Copilot Studio</h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">AI Security Copilot Studio</h1>
               <span className="px-2.5 py-0.5 rounded-full text-xs font-mono bg-blue-500/20 text-blue-300 border border-blue-500/40 flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                 SOC AI ACTIVE
@@ -152,7 +152,7 @@ export const AiCopilotPage = () => {
         </div>
 
         {/* Quick Mode Buttons */}
-        <div className="flex items-center gap-2 bg-slate-950/80 p-1.5 rounded-xl border border-slate-800 relative z-10">
+        <div className="flex flex-wrap items-center gap-2 bg-slate-950/80 p-1.5 rounded-xl border border-slate-800 relative z-10 flex-shrink-0">
           <button
             onClick={() => setActiveTab('chat')}
             className={`px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all ${
@@ -315,9 +315,9 @@ export const AiCopilotPage = () => {
                           <button
                             key={pIdx}
                             onClick={() => handleSendChat(p)}
-                            className="px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-blue-300 hover:text-white transition-all font-mono"
+                            className="px-2.5 py-1 rounded-md bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-xs text-blue-300 hover:text-white transition-all font-mono"
                           >
-                            ⚡ {p}
+                            {p}
                           </button>
                         ))}
                       </div>
@@ -408,7 +408,7 @@ export const AiCopilotPage = () => {
 
                   <p className="text-xs text-slate-200 leading-relaxed">{logAnalysisResult.summary}</p>
 
-                  <div className="grid grid-cols-2 gap-4 text-xs font-mono">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
                     <div className="p-3 bg-slate-950 rounded-lg border border-slate-800">
                       <span className="text-slate-400">Extracted Source IP:</span>
                       <p className="font-bold text-blue-400 mt-0.5">{logAnalysisResult.extracted_entities.source_ip}</p>
@@ -424,18 +424,18 @@ export const AiCopilotPage = () => {
                     <ul className="space-y-1.5 text-xs text-slate-300">
                       {logAnalysisResult.remediation_steps.map((step, idx) => (
                         <li key={idx} className="flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
-                          {step}
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0"></span>
+                          <span>{step}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
 
-                  <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl font-mono text-xs text-emerald-400 flex items-center justify-between">
-                    <span>{logAnalysisResult.suggested_firewall_cmd}</span>
+                  <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl font-mono text-xs text-emerald-400 flex items-center justify-between gap-3">
+                    <span className="truncate">{logAnalysisResult.suggested_firewall_cmd}</span>
                     <button
                       onClick={() => handleCopyText(logAnalysisResult.suggested_firewall_cmd, 'log_cmd')}
-                      className="text-slate-400 hover:text-white p-1 hover:bg-slate-800 rounded"
+                      className="text-slate-400 hover:text-white p-1 hover:bg-slate-800 rounded flex-shrink-0"
                     >
                       {copiedIndex === 'log_cmd' ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
                     </button>

@@ -53,20 +53,20 @@ export const ResetPasswordPage = () => {
 
   if (!token || !token.trim()) {
     return (
-      <div className="min-h-screen bg-[#070A12] flex items-center justify-center p-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(#1E293B_1px,transparent_1px)] [background-size:32px_32px] opacity-20 pointer-events-none"></div>
+      <div className="min-h-screen bg-[#06090F] flex items-center justify-center p-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(#141C2E_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none"></div>
 
-        <div className="glass-card max-w-md w-full p-8 rounded-2xl border border-amber-500/30 shadow-2xl relative z-10 text-center space-y-4">
-          <div className="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-full flex items-center justify-center mx-auto border border-amber-500/20">
-            <AlertTriangle size={32} />
+        <div className="bezel-card max-w-md w-full p-8 shadow-2xl relative z-10 text-center space-y-4">
+          <div className="w-14 h-14 bg-amber-500/10 text-amber-400 rounded-xl flex items-center justify-center mx-auto border border-amber-500/20">
+            <AlertTriangle size={28} />
           </div>
           <h2 className="text-xl font-bold text-white">Missing Password Reset Token</h2>
           <p className="text-slate-400 text-xs leading-relaxed">
-            No reset token was found in the URL. If you copied a secret reset link, please ensure you pasted the full link including the <code className="text-amber-300 bg-amber-950/60 px-1 py-0.5 rounded">?token=...</code> parameter.
+            No reset token was found in the URL. If you copied a secret reset link, please ensure you pasted the full link including the <code className="text-amber-300 bg-amber-950/60 px-1 py-0.5 rounded font-mono">?token=...</code> parameter.
           </p>
           <button
             onClick={() => navigate('/forgot-password')}
-            className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-lg transition-colors flex items-center justify-center gap-2 border border-blue-400/30 shadow-lg shadow-blue-600/30"
+            className="group relative w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-lg transition-all flex items-center justify-center gap-2 border border-blue-400/30 shadow-lg shadow-blue-600/30 active:translate-y-px"
           >
             <span>Request Password Reset Link</span>
             <ArrowRight size={14} />
@@ -77,8 +77,8 @@ export const ResetPasswordPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#070A12] flex items-center justify-center p-6 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(#1E293B_1px,transparent_1px)] [background-size:32px_32px] opacity-20 pointer-events-none"></div>
+    <div className="min-h-screen bg-[#06090F] flex items-center justify-center p-6 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(#141C2E_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none"></div>
 
       <ToastNotification
         type={toast?.type}
@@ -86,10 +86,10 @@ export const ResetPasswordPage = () => {
         onClose={() => setToast(null)}
       />
 
-      <div className="glass-card max-w-md w-full p-8 rounded-2xl border border-slate-800 shadow-2xl relative z-10">
+      <div className="bezel-card max-w-md w-full p-8 shadow-2xl relative z-10">
         <div className="flex flex-col items-center text-center mb-6">
-          <div className="w-12 h-12 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 mb-3">
-            <Shield size={28} />
+          <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-3 shadow-sm">
+            <Shield size={26} />
           </div>
           <h2 className="text-xl font-bold text-white">Set New Password</h2>
           <p className="text-slate-400 text-xs mt-1">Enter your new secure password below</p>
@@ -97,7 +97,7 @@ export const ResetPasswordPage = () => {
 
         {success ? (
           <div className="text-center space-y-4 py-4">
-            <CheckCircle size={48} className="text-emerald-400 mx-auto animate-bounce" />
+            <CheckCircle size={44} className="text-emerald-400 mx-auto" />
             <h3 className="text-lg font-semibold text-white">Password Updated!</h3>
             <p className="text-xs text-slate-400">Redirecting to login portal...</p>
           </div>
@@ -153,12 +153,17 @@ export const ResetPasswordPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm rounded-lg transition-all shadow-lg shadow-blue-600/30 border border-blue-400/30 flex items-center justify-center gap-2"
+              className="group relative w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-lg transition-all shadow-lg shadow-blue-600/30 border border-blue-400/30 flex items-center justify-center gap-2 active:translate-y-px"
             >
               {loading ? (
-                <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
               ) : (
-                'Update Password'
+                <>
+                  <span className="w-5 h-5 rounded-md bg-white/10 flex items-center justify-center transition-colors group-hover:bg-white/20">
+                    <Shield size={13} />
+                  </span>
+                  <span>Update Password</span>
+                </>
               )}
             </button>
           </form>

@@ -65,7 +65,7 @@ export const NetworkTopologyPage = () => {
   };
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto w-full pb-10">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-slate-800 pb-5">
         <div className="flex items-center gap-3">
@@ -90,7 +90,7 @@ export const NetworkTopologyPage = () => {
               }`}
             >
               <Network size={14} />
-              🕸️ Topology Graph
+              <span>Topology Graph</span>
             </button>
             <button
               onClick={() => setViewMode('geoip')}
@@ -101,7 +101,7 @@ export const NetworkTopologyPage = () => {
               }`}
             >
               <Globe size={14} />
-              🌍 GeoIP Attack Map
+              <span>GeoIP Attack Map</span>
             </button>
           </div>
 

@@ -202,9 +202,9 @@ Action Recommended: Immediate firewall block for source subnet 185.220.x.x.`;
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-                <span>🔒 PII Masking: <strong className="text-emerald-400">{maskPii ? 'Active' : 'Disabled'}</strong></span>
-                <span>⏱ Expiry: <strong className="text-amber-400">{singleView ? 'Single View' : `${expiryHours} Hours`}</strong></span>
+              <div className="flex items-center justify-between text-xs text-slate-400 px-1 font-mono">
+                <span className="flex items-center gap-1.5"><Lock size={12} className="text-slate-400" /> PII Masking: <strong className="text-emerald-400 font-sans">{maskPii ? 'Active' : 'Disabled'}</strong></span>
+                <span className="flex items-center gap-1.5"><Clock size={12} className="text-slate-400" /> Expiry: <strong className="text-amber-400 font-sans">{singleView ? 'Single View' : `${expiryHours} Hours`}</strong></span>
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
@@ -294,7 +294,7 @@ Action Recommended: Immediate firewall block for source subnet 185.220.x.x.`;
               {dataMode === 'screen' ? (
                 <div className="p-3 bg-slate-950/60 rounded-xl border border-slate-800 text-xs text-slate-400 space-y-1 font-mono">
                   <div className="flex items-center justify-between text-slate-300 font-semibold mb-1">
-                    <span>📊 Automatic Data Payload:</span>
+                    <span className="flex items-center gap-1.5"><Database size={13} className="text-blue-400" /> Automatic Data Payload:</span>
                     <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Auto-Collected</span>
                   </div>
                   <p className="text-[11px] text-slate-400">

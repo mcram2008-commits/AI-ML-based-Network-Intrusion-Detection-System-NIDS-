@@ -82,10 +82,10 @@ export const SharedReportViewerPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#070A12] bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col items-center justify-center p-4">
-        <div className="glass-card p-6 rounded-2xl border border-emerald-500/30 flex items-center gap-3 text-emerald-400 font-semibold shadow-2xl shadow-emerald-950/40 animate-pulse">
-          <RefreshCw size={24} className="animate-spin text-emerald-400" />
-          <span className="text-sm">Decrypting & Loading Shared Security Data...</span>
+      <div className="min-h-screen bg-[#06090F] flex flex-col items-center justify-center p-4">
+        <div className="bezel-card p-6 flex items-center gap-3 text-emerald-400 font-semibold shadow-2xl shadow-emerald-950/40 font-mono text-xs">
+          <RefreshCw size={20} className="animate-spin text-emerald-400" />
+          <span>DECRYPTING & LOADING SHARED SECURITY DATA...</span>
         </div>
       </div>
     );
@@ -131,11 +131,10 @@ export const SharedReportViewerPage = () => {
             </p>
           </div>
 
-          {passphraseError && (
-            <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs text-center font-semibold animate-fadeIn">
-              ⚠️ {passphraseError}
+            <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs text-center font-semibold flex items-center justify-center gap-2 animate-fadeIn">
+              <AlertTriangle size={14} />
+              <span>{passphraseError}</span>
             </div>
-          )}
 
           <form onSubmit={handleVerifyPassphrase} className="space-y-4">
             <div>
@@ -229,7 +228,8 @@ export const SharedReportViewerPage = () => {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    📁 {reportData.file_name || 'Encrypted Bulk File Share'}
+                    <FileText size={16} className="text-emerald-400" />
+                    <span>{reportData.file_name || 'Encrypted Bulk File Share'}</span>
                   </h3>
                   <p className="text-slate-400 text-xs mt-0.5 font-mono">
                     Size: {reportData.file_size_bytes ? (reportData.file_size_bytes / (1024 * 1024)).toFixed(2) + ' MB' : 'Bulk Dataset'} • Encryption: AES-256
@@ -251,8 +251,8 @@ export const SharedReportViewerPage = () => {
 
             {reportData.destination_ip_lock && (
               <div className="p-3 bg-blue-950/40 border border-blue-500/30 rounded-xl text-xs text-blue-300 flex items-center gap-2">
-                <Shield size={16} className="text-blue-400" />
-                <span>🎯 Destination IP Restriction Active: Only requests from IP <strong>{reportData.destination_ip_lock}</strong> can decrypt this file.</span>
+                <Shield size={16} className="text-blue-400 flex-shrink-0" />
+                <span>Destination IP Restriction Active: Only requests from IP <strong>{reportData.destination_ip_lock}</strong> can decrypt this file.</span>
               </div>
             )}
           </div>
