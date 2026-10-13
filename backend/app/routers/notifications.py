@@ -35,10 +35,10 @@ def dispatch_webhook_payload(webhook_url: str, provider: str, payload_data: dict
             req = urllib.request.Request(
                 url,
                 data=json.dumps(body).encode("utf-8"),
-                headers={"Content-Type": "application/json"}
+                headers={"Content-Type": "application/json", "User-Agent": "AEGIS-NIDS-SOC/1.0"}
             )
             with urllib.request.urlopen(req, timeout=5) as resp:
-                return resp.status in (200, 204)
+                return 200 <= resp.status < 300
 
         if not webhook_url:
             return False
@@ -63,13 +63,44 @@ def dispatch_webhook_payload(webhook_url: str, provider: str, payload_data: dict
         req = urllib.request.Request(
             webhook_url,
             data=json.dumps(body).encode("utf-8"),
-            headers={"Content-Type": "application/json"}
+            headers={"Content-Type": "application/json", "User-Agent": "AEGIS-NIDS-SOC/1.0"}
         )
         with urllib.request.urlopen(req, timeout=5) as resp:
-            return resp.status in (200, 204)
+            return 200 <= resp.status < 300
     except Exception as e:
         print(f"[Notification] Webhook dispatch warning: {e}")
         return False
+
+def check_and_dispatch_alert(alert_data: dict, db: Session):
+    """Automatically dispatches alert to Slack, Discord, and Telegram if webhook_enabled is True"""
+    try:
+        enabled = db.query(SystemSetting).filter(SystemSetting.key == "webhook_enabled").first()
+        if not enabled or enabled.value.lower() != "true":
+            return
+        
+        min_sev = db.query(SystemSetting).filter(SystemSetting.key == "min_severity_trigger").first()
+        min_sev_val = min_sev.value if min_sev else "HIGH"
+        sev_order = {"LOW": 1, "MEDIUM": 2, "HIGH": 3, "CRITICAL": 4}
+        alert_sev = alert_data.get("severity", "MEDIUM")
+        
+        if sev_order.get(alert_sev, 1) < sev_order.get(min_sev_val, 3):
+            return
+
+        slack_url = db.query(SystemSetting).filter(SystemSetting.key == "slack_webhook_url").first()
+        if slack_url and slack_url.value:
+            dispatch_webhook_payload(slack_url.value, "slack", alert_data)
+            
+        discord_url = db.query(SystemSetting).filter(SystemSetting.key == "discord_webhook_url").first()
+        if discord_url and discord_url.value:
+            dispatch_webhook_payload(discord_url.value, "discord", alert_data)
+            
+        tg_token = db.query(SystemSetting).filter(SystemSetting.key == "telegram_bot_token").first()
+        tg_chat = db.query(SystemSetting).filter(SystemSetting.key == "telegram_chat_id").first()
+        if tg_token and tg_token.value and tg_chat and tg_chat.value:
+            dispatch_webhook_payload("", "telegram", alert_data, telegram_token=tg_token.value, telegram_chat_id=tg_chat.value)
+    except Exception as e:
+        print(f"[Webhook Dispatcher] Background dispatch notice: {e}")
+
 
 @router.get("/settings", response_model=NotificationSettingsOut)
 def get_notification_settings(

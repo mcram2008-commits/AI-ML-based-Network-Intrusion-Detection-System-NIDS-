@@ -26,8 +26,28 @@ export const ReportsPage = () => {
     fetchReport();
   }, []);
 
-  const handleExportCSV = () => {
-    window.open('http://127.0.0.1:8000/api/reports/export/csv', '_blank');
+  const handleExportCSV = async () => {
+    try {
+      const res = await client.get('/reports/export/csv', { responseType: 'blob' });
+      const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `nids_security_report_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      setToast({ type: 'success', message: 'Security Report CSV downloaded successfully!' });
+    } catch (err) {
+      console.error('CSV export failed:', err);
+      const token = localStorage.getItem('nids_access_token');
+      if (token) {
+        window.open(`http://127.0.0.1:8000/api/reports/export/csv?token=${token}`, '_blank');
+      } else {
+        setToast({ type: 'error', message: 'Failed to export CSV: Authentication required. Please log in.' });
+      }
+    }
   };
 
   const handlePrintPDF = () => {

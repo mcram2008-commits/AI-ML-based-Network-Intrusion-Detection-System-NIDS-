@@ -110,6 +110,18 @@ class TrafficSimulatorEngine:
                     db.add(alert)
                     db.commit()
 
+                    try:
+                        from app.routers.notifications import check_and_dispatch_alert
+                        check_and_dispatch_alert({
+                            "attack_type": cat,
+                            "severity": sev,
+                            "source_ip": src_ip,
+                            "destination_ip": self.target_ip,
+                            "confidence": conf
+                        }, db)
+                    except Exception:
+                        pass
+
                 db.close()
                 with self._lock:
                     self.total_flows_generated += 1

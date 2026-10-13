@@ -188,8 +188,34 @@ def run_tests():
     harden_res = res_adv_harden.json()
     print(f"   [SUCCESS] Hardened Model Retrained: {harden_res['message']} (Accuracy: {harden_res['accuracy']}%)")
 
+    # 17. Test Explainable AI (XAI) Attribution Engine
+    print("\n17. Testing Explainable AI (XAI) Attribution Engine (/predict/explain)...")
+    res_xai = requests.post(f"{BASE_URL}/predict/explain", headers=analyst_headers, json={
+        "flow_features": {"duration": 120.0, "src_bytes": 5000, "dst_bytes": 0, "count": 250, "serror_rate": 0.95}
+    })
+    assert res_xai.status_code == 200, f"XAI explanation failed: {res_xai.text}"
+    xai_data = res_xai.json()
+    assert len(xai_data.get("top_contributing_features", [])) > 0, "Expected top contributing features"
+    print(f"   [SUCCESS] XAI Engine: Top Feature='{xai_data['top_contributing_features'][0]['feature_name']}' | Narrative='{xai_data['natural_language_explanation'][:60]}...'")
+
+    # 18. Test Wireshark PCAP & PCAPNG DPI Engine
+    print("\n18. Testing Wireshark PCAP & PCAPNG Deep Packet Inspection Engine...")
+    res_pcap_demo = requests.get(f"{BASE_URL}/datasets/sample-pcap-demo", headers=admin_headers)
+    assert res_pcap_demo.status_code == 200, f"PCAP demo capture failed: {res_pcap_demo.text}"
+    pcap_data = res_pcap_demo.json()
+    assert pcap_data["pcap_metadata"]["total_packets"] > 0
+    print(f"   [SUCCESS] DPI Engine: Parsed {pcap_data['pcap_metadata']['total_packets']} packets into {pcap_data['pcap_metadata']['total_flows']} flows. Threat ratio={pcap_data['threat_summary']['threat_ratio_pct']}%")
+
+    # 19. Test Interactive MITRE ATT&CK Enterprise Matrix
+    print("\n19. Testing Interactive MITRE ATT&CK Enterprise Matrix (/attacks/mitre-matrix)...")
+    res_mitre = requests.get(f"{BASE_URL}/attacks/mitre-matrix", headers=analyst_headers)
+    assert res_mitre.status_code == 200, f"MITRE matrix failed: {res_mitre.text}"
+    mitre_data = res_mitre.json()
+    assert len(mitre_data.get("tactics", [])) == 6
+    print(f"   [SUCCESS] MITRE ATT&CK: Framework={mitre_data['matrix_framework_version']} | 6 Enterprise Tactics | {mitre_data['total_active_techniques']} Active Techniques")
+
     print("\n=======================================================")
-    print(" ALL 16 END-TO-END SYSTEM VERIFICATION TESTS PASSED! ")
+    print(" ALL 19 END-TO-END SYSTEM VERIFICATION TESTS PASSED! ")
     print("=======================================================\n")
 
 if __name__ == "__main__":

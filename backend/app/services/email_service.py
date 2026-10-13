@@ -169,6 +169,39 @@ def build_welcome_email_html(full_name: str, username: str, email: str, role: st
     """
 
 
+def get_live_smtp_config() -> Dict[str, Any]:
+    """Reads live SMTP parameters from .env so credential updates take effect immediately."""
+    import os
+    try:
+        from dotenv import dotenv_values
+        env_path = os.path.join(settings.BASE_DIR, ".env")
+        live_env = dotenv_values(env_path) if os.path.exists(env_path) else {}
+    except Exception:
+        live_env = {}
+
+    server = (live_env.get("SMTP_SERVER") or os.getenv("SMTP_SERVER") or settings.SMTP_SERVER or "smtp.gmail.com").strip()
+    try:
+        port = int(live_env.get("SMTP_PORT") or os.getenv("SMTP_PORT") or settings.SMTP_PORT or 587)
+    except Exception:
+        port = 587
+    user = (live_env.get("SMTP_USERNAME") or os.getenv("SMTP_USERNAME") or settings.SMTP_USERNAME or "").strip()
+    pwd = (live_env.get("SMTP_PASSWORD") or os.getenv("SMTP_PASSWORD") or settings.SMTP_PASSWORD or "").strip().replace(" ", "")
+    sender_email = (live_env.get("SENDER_EMAIL") or os.getenv("SENDER_EMAIL") or settings.SENDER_EMAIL or user or "alerts@nids.sec").strip()
+    sender_name = (live_env.get("SENDER_NAME") or os.getenv("SENDER_NAME") or settings.SENDER_NAME or "AEGIS NIDS SOC Alert Center").strip()
+    enabled_val = live_env.get("EMAIL_ENABLED") or os.getenv("EMAIL_ENABLED") or str(settings.EMAIL_ENABLED)
+    enabled = str(enabled_val).lower() in ("true", "1", "yes")
+
+    return {
+        "server": server,
+        "port": port,
+        "username": user,
+        "password": pwd,
+        "sender_email": sender_email,
+        "sender_name": sender_name,
+        "enabled": enabled
+    }
+
+
 def send_email_dispatch(
     recipient_email: str,
     subject: str,
@@ -181,12 +214,21 @@ def send_email_dispatch(
     if not text_content:
         text_content = "AEGIS NIDS Security Notice. Please view this message in an HTML compatible mail reader."
 
+    cfg = get_live_smtp_config()
+    smtp_server = cfg["server"]
+    smtp_port = cfg["port"]
+    smtp_user = cfg["username"]
+    smtp_pass = cfg["password"]
+    sender_email = cfg["sender_email"]
+    sender_name = cfg["sender_name"]
+    email_enabled = cfg["enabled"]
+
     # Try SMTP sending if credentials exist and EMAIL_ENABLED is True
-    if settings.EMAIL_ENABLED or (settings.SMTP_USERNAME and settings.SMTP_PASSWORD):
+    if email_enabled or (smtp_user and smtp_pass):
         try:
             msg = MIMEMultipart("alternative")
             msg["Subject"] = subject
-            msg["From"] = f"{settings.SENDER_NAME} <{settings.SENDER_EMAIL}>"
+            msg["From"] = f"{sender_name} <{sender_email}>"
             msg["To"] = recipient_email
 
             part1 = MIMEText(text_content, "plain")
@@ -194,11 +236,16 @@ def send_email_dispatch(
             msg.attach(part1)
             msg.attach(part2)
 
-            with smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT, timeout=10) as server:
+            if smtp_port == 465:
+                server = smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=12)
+            else:
+                server = smtplib.SMTP(smtp_server, smtp_port, timeout=12)
                 server.starttls()
-                if settings.SMTP_USERNAME and settings.SMTP_PASSWORD:
-                    server.login(settings.SMTP_USERNAME, settings.SMTP_PASSWORD)
-                server.sendmail(settings.SENDER_EMAIL, [recipient_email], msg.as_string())
+
+            with server:
+                if smtp_user and smtp_pass:
+                    server.login(smtp_user, smtp_pass)
+                server.sendmail(sender_email, [recipient_email], msg.as_string())
 
             logger.info(f"Successfully dispatched live email to {recipient_email}")
             return {
@@ -210,14 +257,34 @@ def send_email_dispatch(
                 "dispatched_at": datetime.datetime.utcnow().isoformat(),
                 "html_preview": html_content
             }
-        except Exception as e:
-            logger.warning(f"SMTP dispatch failed ({str(e)}). Falling back to simulated email preview dispatch.")
+        except smtplib.SMTPAuthenticationError as auth_err:
+            err_msg = "Google SMTP rejected authentication (535 BadCredentials). The Google App Password in backend/.env is invalid or expired."
+            logger.warning(f"SMTP authentication failure: {auth_err}")
             return {
-                "success": True,
-                "status": "SIMULATED_PREVIEW",
+                "success": False,
+                "status": "AUTH_FAILED",
                 "simulated": True,
-                "message": f"Security report generated for {recipient_email} (SMTP server not active or reachable). Displaying live HTML dispatch preview.",
-                "error_detail": str(e),
+                "message": err_msg,
+                "error_detail": f"BadCredentials: {str(auth_err)}. Generate a 16-character App Password at https://myaccount.google.com/apppasswords and update SMTP_PASSWORD in backend/.env",
+                "recipient": recipient_email,
+                "dispatched_at": datetime.datetime.utcnow().isoformat(),
+                "html_preview": html_content
+            }
+        except Exception as e:
+            err_str = str(e)
+            is_bad_cred = "BadCredentials" in err_str or "535" in err_str or "unexpectedly closed" in err_str
+            err_msg = (
+                "Google SMTP rejected authentication (BadCredentials). The Google App Password in backend/.env is invalid or expired."
+                if is_bad_cred else
+                f"SMTP connection to {settings.SMTP_SERVER}:{settings.SMTP_PORT} failed ({err_str})."
+            )
+            logger.warning(f"SMTP dispatch failed ({err_str}). Falling back to preview dispatch.")
+            return {
+                "success": False if is_bad_cred else True,
+                "status": "AUTH_FAILED" if is_bad_cred else "SIMULATED_PREVIEW",
+                "simulated": True,
+                "message": err_msg,
+                "error_detail": f"{err_str}. Ensure a valid 16-character Google App Password is set in backend/.env",
                 "recipient": recipient_email,
                 "dispatched_at": datetime.datetime.utcnow().isoformat(),
                 "html_preview": html_content
@@ -228,7 +295,7 @@ def send_email_dispatch(
         "success": True,
         "status": "SIMULATED_PREVIEW",
         "simulated": True,
-        "message": f"Security Incident Report formatted and dispatched for {recipient_email} (Preview Mode active).",
+        "message": f"Security Incident Report formatted for {recipient_email} (Preview Mode active).",
         "recipient": recipient_email,
         "dispatched_at": datetime.datetime.utcnow().isoformat(),
         "html_preview": html_content

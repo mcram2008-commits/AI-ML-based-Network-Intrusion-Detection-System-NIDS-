@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import client from '../api/client';
-import { Cpu, Play, CheckCircle2, Award, Activity, BarChart2 } from 'lucide-react';
+import { Cpu, Play, CheckCircle2, Award, Activity, BarChart2, Trash2, RotateCcw } from 'lucide-react';
 import ToastNotification from '../components/ToastNotification';
 import AdversarialBenchWidget from '../components/AdversarialBenchWidget';
 
@@ -10,6 +10,8 @@ export const MLModelsPage = () => {
   const [datasets, setDatasets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [training, setTraining] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
   const [selectedDatasetId, setSelectedDatasetId] = useState(0);
   const [algorithm, setAlgorithm] = useState('Random Forest');
@@ -61,6 +63,40 @@ export const MLModelsPage = () => {
       fetchData();
     } catch (err) {
       setToast({ type: 'error', message: 'Failed to set active model' });
+    }
+  };
+
+  const handleDeleteModel = async (modelId, modelName) => {
+    if (!window.confirm(`Are you sure you want to remove model '${modelName}'?`)) {
+      return;
+    }
+    setDeletingId(modelId);
+    try {
+      const res = await client.delete(`/models/${modelId}`);
+      setToast({ type: 'success', message: res.data.message || 'Model deleted successfully' });
+      fetchData();
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'Failed to delete model';
+      setToast({ type: 'error', message: msg });
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleResetBaseModels = async () => {
+    if (!window.confirm("This will clean up duplicate test models and re-seed 4 clean Base Benchmark Models (Random Forest, Gradient Boosting, MLP Neural Network, Hardened RF). Proceed?")) {
+      return;
+    }
+    setResetting(true);
+    try {
+      const res = await client.post('/models/reset-clean-base-models');
+      setToast({ type: 'success', message: res.data.message || 'Base models suite initialized!' });
+      fetchData();
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'Failed to reset base models';
+      setToast({ type: 'error', message: msg });
+    } finally {
+      setResetting(false);
     }
   };
 
@@ -151,7 +187,21 @@ export const MLModelsPage = () => {
 
       {/* Leaderboard Table */}
       <div className="space-y-4">
-        <h2 className="text-base font-bold text-white tracking-tight">Trained Model Performance Leaderboard ({models.length})</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-base font-bold text-white tracking-tight">Trained Model Performance Leaderboard ({models.length})</h2>
+            <p className="text-xs text-slate-400">Production baseline models and custom-trained classifiers</p>
+          </div>
+          <button
+            onClick={handleResetBaseModels}
+            disabled={resetting}
+            className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium border border-slate-700 transition-colors flex items-center gap-2"
+            title="Clean duplicate models and re-seed 4 clean benchmark models"
+          >
+            <RotateCcw size={13} className={resetting ? 'animate-spin text-purple-400' : 'text-slate-400'} />
+            {resetting ? 'Resetting Base Suite...' : 'Re-seed Base Benchmark Models'}
+          </button>
+        </div>
 
         <div className="grid grid-cols-1 gap-5">
           {models.map((m) => (
@@ -169,14 +219,28 @@ export const MLModelsPage = () => {
                   <div className="text-[11px] text-slate-400 font-mono mt-0.5">Algorithm: {m.algorithm} • Dataset: {m.dataset_name}</div>
                 </div>
 
-                {!m.is_active && (
-                  <button
-                    onClick={() => handleSelectActive(m.id)}
-                    className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium border border-blue-400/30 transition-colors shadow-sm"
-                  >
-                    Set Active Model
-                  </button>
-                )}
+                <div className="flex items-center gap-2">
+                  {!m.is_active && (
+                    <>
+                      <button
+                        onClick={() => handleSelectActive(m.id)}
+                        className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium border border-blue-400/30 transition-colors shadow-sm"
+                      >
+                        Set Active Model
+                      </button>
+                      {models.length > 1 && (
+                        <button
+                          onClick={() => handleDeleteModel(m.id, m.name)}
+                          disabled={deletingId === m.id}
+                          className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-colors"
+                          title="Delete this model"
+                        >
+                          <Trash2 size={14} className={deletingId === m.id ? 'animate-pulse' : ''} />
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
 
               {/* Empirical Metrics Bar */}

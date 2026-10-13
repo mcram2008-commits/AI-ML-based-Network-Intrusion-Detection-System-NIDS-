@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import client from '../api/client';
-import { Search, Cpu, ShieldAlert, CheckCircle, ArrowRight, Zap } from 'lucide-react';
+import { Search, Cpu, ShieldAlert, CheckCircle, ArrowRight, Zap, Brain } from 'lucide-react';
 import ToastNotification from '../components/ToastNotification';
+import XaiExplanationModal from '../components/XaiExplanationModal';
 
 export const IntrusionDetectionPage = () => {
   const [formData, setFormData] = useState({
@@ -19,6 +20,7 @@ export const IntrusionDetectionPage = () => {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
+  const [showXaiModal, setShowXaiModal] = useState(false);
 
   const presets = [
     {
@@ -249,6 +251,15 @@ export const IntrusionDetectionPage = () => {
                 <div className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-1">Recommended Action:</div>
                 <p className="text-xs text-slate-200 leading-relaxed font-mono">{result.recommended_action}</p>
               </div>
+
+              <button
+                type="button"
+                onClick={() => setShowXaiModal(true)}
+                className="w-full py-2.5 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 font-semibold text-xs rounded-xl transition-all border border-purple-500/40 flex items-center justify-center gap-2 shadow-lg shadow-purple-500/10 cursor-pointer"
+              >
+                <Brain size={15} />
+                <span>Explain Verdict with AI (XAI Feature Attribution)</span>
+              </button>
             </div>
           ) : (
             <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-500">
@@ -262,6 +273,12 @@ export const IntrusionDetectionPage = () => {
           </div>
         </div>
       </div>
+
+      <XaiExplanationModal
+        isOpen={showXaiModal}
+        flowData={formData}
+        onClose={() => setShowXaiModal(false)}
+      />
     </div>
   );
 };

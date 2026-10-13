@@ -72,6 +72,18 @@ def _process_flow_prediction(flow_dict: Dict[str, Any], db: Session) -> Dict[str
         )
         db.add(alert_rec)
         db.commit()
+
+        try:
+            from app.routers.notifications import check_and_dispatch_alert
+            check_and_dispatch_alert({
+                "attack_type": res["attack_category"],
+                "severity": res["threat_severity"],
+                "source_ip": flow_rec.source_ip,
+                "destination_ip": flow_rec.destination_ip,
+                "confidence": res["confidence"]
+            }, db)
+        except Exception:
+            pass
         
     return {
         "id": pred_rec.id,
@@ -145,3 +157,55 @@ def get_recent_flows(
                 "timestamp": p.timestamp
             })
     return results
+
+
+@router.get("/explain/{flow_id}")
+def explain_flow_by_id(
+    flow_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_any_user)
+):
+    flow = db.query(NetworkFlow).filter(NetworkFlow.id == flow_id).first()
+    if not flow:
+        raise HTTPException(status_code=404, detail="Network flow not found")
+        
+    pred = db.query(Prediction).filter(Prediction.flow_id == flow.id).first()
+    flow_data = {
+        "source_ip": flow.source_ip,
+        "destination_ip": flow.destination_ip,
+        "source_port": flow.source_port,
+        "destination_port": flow.destination_port,
+        "protocol": flow.protocol,
+        "packet_count": flow.packet_count,
+        "byte_count": flow.byte_count,
+        "duration": flow.duration,
+        "rate": flow.rate,
+        "attack_category": pred.attack_category if pred else "Normal",
+        "threat_severity": pred.threat_severity if pred else "LOW",
+        "confidence": pred.confidence if pred else 95.0
+    }
+    
+    from app.ml.xai_explainer import explain_prediction
+    active_model = db.query(MLModel).filter(MLModel.is_active == True).first()
+    model_path = active_model.filepath if active_model else None
+    
+    return explain_prediction(flow_data, model_filepath=model_path)
+
+
+@router.post("/explain")
+def explain_flow_arbitrary(
+    data: ManualFlowPredictRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_any_user)
+):
+    flow_dict = data.dict()
+    active_model = db.query(MLModel).filter(MLModel.is_active == True).first()
+    model_path = active_model.filepath if active_model else None
+    
+    res = predict_flow(flow_dict, model_filepath=model_path)
+    flow_dict["attack_category"] = res["attack_category"]
+    flow_dict["threat_severity"] = res["threat_severity"]
+    flow_dict["confidence"] = res["confidence"]
+    
+    from app.ml.xai_explainer import explain_prediction
+    return explain_prediction(flow_dict, model_filepath=model_path)

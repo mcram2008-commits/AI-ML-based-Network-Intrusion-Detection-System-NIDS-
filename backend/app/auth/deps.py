@@ -11,6 +11,10 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=Fals
 def get_token_from_request(request: Request, bearer_token: str = Depends(oauth2_scheme)) -> str:
     if bearer_token:
         return bearer_token
+    # Query parameter fallback (useful for file downloads/CSV exports)
+    query_token = request.query_params.get("token")
+    if query_token:
+        return query_token
     # Fallback to cookie
     cookie_token = request.cookies.get("access_token")
     if cookie_token:

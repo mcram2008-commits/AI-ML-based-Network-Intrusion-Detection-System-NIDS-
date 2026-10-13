@@ -52,12 +52,26 @@ def update_user(user_id: int, data: UserUpdateAdmin, db: Session = Depends(get_d
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
         
+    if data.username:
+        new_uname = data.username.strip()
+        existing = db.query(User).filter(User.username == new_uname, User.id != user_id).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="Username already exists")
+        user.username = new_uname
     if data.full_name:
-        user.full_name = data.full_name
+        user.full_name = data.full_name.strip()
     if data.email:
-        user.email = data.email.lower()
+        new_email = data.email.lower().strip()
+        existing_email = db.query(User).filter(User.email == new_email, User.id != user_id).first()
+        if existing_email:
+            raise HTTPException(status_code=400, detail="Email already exists")
+        user.email = new_email
     if data.phone is not None:
-        user.phone = data.phone
+        user.phone = data.phone.strip() if data.phone else None
+    if data.password:
+        if len(data.password) < 8:
+            raise HTTPException(status_code=400, detail="Password must be at least 8 characters long")
+        user.password_hash = get_password_hash(data.password)
     if data.role and data.role in ["Admin", "Security Analyst", "Viewer"]:
         user.role = data.role
     if data.is_active is not None:

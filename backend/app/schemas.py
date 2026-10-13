@@ -68,8 +68,10 @@ class UserCreateAdmin(BaseModel):
 
 class UserUpdateAdmin(BaseModel):
     full_name: Optional[str] = None
+    username: Optional[str] = None
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
+    password: Optional[str] = None
     role: Optional[str] = None
     is_active: Optional[bool] = None
 
@@ -199,6 +201,7 @@ class IPReportEmailResponse(BaseModel):
     recipient: str
     dispatched_at: str
     html_preview: str
+    error_detail: Optional[str] = None
 
 # 1. Notification Schemas
 class NotificationSettingsUpdate(BaseModel):
@@ -222,6 +225,33 @@ class TestWebhookRequest(BaseModel):
     telegram_bot_token: Optional[str] = ""
     telegram_chat_id: Optional[str] = ""
     provider: str = "slack"  # slack, discord, telegram, custom
+
+class EmailSettingsOut(BaseModel):
+    smtp_server: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    smtp_username: str = ""
+    has_password: bool = False
+    sender_email: str = ""
+    sender_name: str = "AEGIS NIDS SOC Alert Center"
+    email_enabled: bool = True
+
+class EmailSettingsUpdate(BaseModel):
+    smtp_server: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    smtp_username: str = ""
+    smtp_password: Optional[str] = None
+    sender_email: str = ""
+    sender_name: str = "AEGIS NIDS SOC Alert Center"
+    email_enabled: bool = True
+
+class TestEmailRequest(BaseModel):
+    recipient_email: EmailStr
+    smtp_server: Optional[str] = None
+    smtp_port: Optional[int] = None
+    smtp_username: Optional[str] = None
+    smtp_password: Optional[str] = None
+    sender_email: Optional[str] = None
+    sender_name: Optional[str] = None
 
 
 # 2. Firewall Rule Schemas

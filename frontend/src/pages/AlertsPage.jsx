@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import client from '../api/client';
 import { useAuth } from '../context/AuthContext';
-import { Bell, Search, Filter, CheckCircle2, ShieldAlert, Download, Edit3, Bot, Shield } from 'lucide-react';
+import { Bell, Search, Filter, CheckCircle2, ShieldAlert, Download, Edit3, Bot, Shield, Brain } from 'lucide-react';
 import ToastNotification from '../components/ToastNotification';
 import FirewallRuleModal from '../components/FirewallRuleModal';
 import AiPlaybookModal from '../components/AiPlaybookModal';
+import { XaiExplanationModal } from '../components/XaiExplanationModal';
 
 export const AlertsPage = () => {
   const { user, hasRole } = useAuth();
@@ -21,6 +22,7 @@ export const AlertsPage = () => {
 
   const [firewallIp, setFirewallIp] = useState(null);
   const [playbookAlert, setPlaybookAlert] = useState(null);
+  const [xaiAlert, setXaiAlert] = useState(null);
 
   const handleQuickSoarBlock = async (ip) => {
     try {
@@ -53,6 +55,8 @@ export const AlertsPage = () => {
 
   useEffect(() => {
     fetchAlerts();
+    const interval = setInterval(fetchAlerts, 5000);
+    return () => clearInterval(interval);
   }, [severityFilter, statusFilter, search]);
 
   const handleUpdateStatus = async () => {
@@ -67,8 +71,28 @@ export const AlertsPage = () => {
     }
   };
 
-  const handleExportCSV = () => {
-    window.open('http://127.0.0.1:8000/api/reports/export/csv', '_blank');
+  const handleExportCSV = async () => {
+    try {
+      const res = await client.get('/reports/export/csv', { responseType: 'blob' });
+      const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `nids_security_alerts_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      setToast({ type: 'success', message: 'Alerts CSV exported successfully!' });
+    } catch (err) {
+      console.error('Alerts CSV export failed:', err);
+      const token = localStorage.getItem('nids_access_token');
+      if (token) {
+        window.open(`http://127.0.0.1:8000/api/reports/export/csv?token=${token}`, '_blank');
+      } else {
+        setToast({ type: 'error', message: 'Failed to export CSV: Authentication required. Please log in.' });
+      }
+    }
   };
 
   const canEdit = hasRole(['Admin', 'Security Analyst']);
@@ -222,6 +246,15 @@ export const AlertsPage = () => {
                         </button>
 
                         <button
+                          onClick={() => setXaiAlert(a)}
+                          title="Explainable AI (XAI) Root Cause Attribution"
+                          className="px-2 py-1 rounded bg-indigo-950/70 hover:bg-indigo-900 text-indigo-300 text-[11px] border border-indigo-800/60 transition-colors inline-flex items-center gap-1 shadow-sm"
+                        >
+                          <Brain size={12} className="text-purple-400" />
+                          <span>XAI</span>
+                        </button>
+
+                        <button
                           onClick={() => setFirewallIp(a.source_ip)}
                           title="Generate Firewall Rule Syntax"
                           className="px-2 py-1 rounded bg-cyan-950/60 hover:bg-cyan-900 text-cyan-300 text-[11px] border border-cyan-800/60 transition-colors inline-flex items-center gap-1"
@@ -260,6 +293,26 @@ export const AlertsPage = () => {
         isOpen={Boolean(playbookAlert)}
         onClose={() => setPlaybookAlert(null)}
         alertData={playbookAlert}
+      />
+
+      <XaiExplanationModal
+        isOpen={Boolean(xaiAlert)}
+        onClose={() => setXaiAlert(null)}
+        flowId={xaiAlert?.flow_id}
+        flowData={xaiAlert && !xaiAlert.flow_id ? {
+          source_ip: xaiAlert.source_ip,
+          destination_ip: xaiAlert.destination_ip,
+          source_port: xaiAlert.source_port,
+          destination_port: xaiAlert.destination_port,
+          protocol: xaiAlert.protocol,
+          packet_count: 120,
+          byte_count: 9500,
+          duration: 3.5,
+          rate: 2700.0,
+          attack_category: xaiAlert.attack_type,
+          threat_severity: xaiAlert.severity,
+          confidence: xaiAlert.confidence
+        } : null}
       />
 
 

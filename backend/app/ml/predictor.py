@@ -29,20 +29,33 @@ def set_active_model_bundle(bundle):
     _active_model_bundle = bundle
 
 def get_threat_severity_and_action(attack_category: str, confidence: float) -> tuple[str, str]:
-    if attack_category in ["BENIGN", "Normal"]:
+    cat_upper = attack_category.upper()
+    if cat_upper in ["BENIGN", "NORMAL"]:
         return "LOW", "Normal network flow - no action needed"
-    elif attack_category in ["Port Scan"]:
+    elif "PORT SCAN" in cat_upper or "RECONNAISSANCE" in cat_upper:
         if confidence > 85.0:
             return "HIGH", "Investigate source IP and close unauthorized listening ports"
-        return "MEDIUM", "Monitor source IP for port sweep activity"
-    elif attack_category in ["Brute Force"]:
+        return "MEDIUM", "Monitor source IP for reconnaissance sweep activity"
+    elif "BRUTE FORCE" in cat_upper or "PATATOR" in cat_upper:
         return "HIGH", "Block source IP and enforce MFA/account lockout policies"
-    elif attack_category in ["DoS/DDoS"]:
+    elif "DOS" in cat_upper or "DDOS" in cat_upper:
         return "CRITICAL", "Deploy rate-limiting / DDoS mitigation rules on firewall immediately"
-    elif attack_category in ["Botnet"]:
+    elif "BOT" in cat_upper:
         return "CRITICAL", "Isolate infected host and initiate C2 server domain block"
-    elif attack_category in ["Web Attack", "Infiltration"]:
+    elif "WEB ATTACK" in cat_upper or "INFILTRATION" in cat_upper:
         return "HIGH", "Inspect web application firewall (WAF) logs for injection attempts"
+    elif "EXPLOIT" in cat_upper:
+        return "CRITICAL", "Deploy intrusion prevention signature and patch vulnerable host service"
+    elif "FUZZER" in cat_upper:
+        return "HIGH", "Detect and drop malformed packet streams; alert perimeter firewall"
+    elif "BACKDOOR" in cat_upper:
+        return "CRITICAL", "Isolate compromised endpoint and terminate persistent C2 backdoor tunnel"
+    elif "SHELLCODE" in cat_upper:
+        return "CRITICAL", "Terminate suspicious process execution and dump volatile memory for forensics"
+    elif "WORM" in cat_upper:
+        return "CRITICAL", "Isolate network segment immediately to prevent lateral automated propagation"
+    elif "ANALYSIS" in cat_upper:
+        return "MEDIUM", "Monitor security scanning probes and verify perimeter filtering"
     else:
         return "MEDIUM", "Investigate suspicious network traffic flow"
 

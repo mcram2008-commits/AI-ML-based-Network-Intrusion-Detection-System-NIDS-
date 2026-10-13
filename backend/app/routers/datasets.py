@@ -1,4 +1,5 @@
 import os
+import time
 import shutil
 import pandas as pd
 from typing import List
@@ -103,3 +104,67 @@ def preprocess_dataset_endpoint(
         "clean_records": len(X),
         "features": feature_cols
     }
+
+
+@router.post("/upload-pcap")
+def upload_pcap_dpi(
+    file: UploadFile = File(...),
+    max_packets: int = 5000,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_analyst_or_admin)
+):
+    """
+    Accepts Wireshark .pcap or .pcapng packet capture file, reconstructs 5-tuple IP flows,
+    and classifies all flows with active machine learning threat engine.
+    """
+    if not file.filename.lower().endswith((".pcap", ".pcapng", ".cap")):
+        raise HTTPException(status_code=400, detail="Invalid file format. Please upload a .pcap or .pcapng file.")
+
+    save_path = os.path.join(settings.UPLOADS_DIR, f"pcap_{int(time.time())}_{file.filename}")
+    with open(save_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    from app.services.pcap_parser import parse_pcap_file
+    from app.models import MLModel
+    active_model = db.query(MLModel).filter(MLModel.is_active == True).first()
+    model_path = active_model.filepath if active_model else None
+
+    try:
+        report = parse_pcap_file(save_path, max_packets=max_packets, model_filepath=model_path)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to inspect PCAP: {str(e)}")
+
+    # Log action
+    log = SystemLog(
+        user_id=current_user.id,
+        action="PCAP_DEEP_PACKET_INSPECTION",
+        details=f"Inspected PCAP '{file.filename}': {report['pcap_metadata']['total_packets']} pkts, {report['threat_summary']['malicious_count']} attacks detected"
+    )
+    db.add(log)
+    db.commit()
+
+    return report
+
+
+@router.get("/sample-pcap-demo")
+def get_sample_pcap_demo(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_any_user)
+):
+    """
+    Generates and analyzes a realistic sample attack PCAP capture (SYN Flood & Port Scan)
+    for instant 1-click live demonstration.
+    """
+    sample_path = os.path.join(settings.UPLOADS_DIR, "sample_attack_capture.pcap")
+    from app.services.pcap_parser import create_sample_attack_pcap, parse_pcap_file
+    from app.models import MLModel
+
+    if not os.path.exists(sample_path):
+        create_sample_attack_pcap(sample_path)
+
+    active_model = db.query(MLModel).filter(MLModel.is_active == True).first()
+    model_path = active_model.filepath if active_model else None
+
+    report = parse_pcap_file(sample_path, max_packets=2000, model_filepath=model_path)
+    return report
+

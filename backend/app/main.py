@@ -171,9 +171,45 @@ def startup_event():
                 created_at=datetime.datetime.utcnow()
             )
             
-            db.add_all([admin_user, analyst_user, viewer_user])
+            thaveedhuraja_user = User(
+                full_name="Thaveedhuraja E",
+                username="thaveedhuraja",
+                email="thaveedhuraja208@gmail.com",
+                phone="6369823726",
+                password_hash=get_password_hash("Password123!"),
+                role="Admin",
+                is_active=True,
+                is_verified=True,
+                created_at=datetime.datetime.utcnow()
+            )
+
+            santhosh_user = User(
+                full_name="Santhosh A",
+                username="santhosh",
+                email="santhoshalagesan26@gmail.com",
+                phone="9342200118",
+                password_hash=get_password_hash("Password123!"),
+                role="Security Analyst",
+                is_active=True,
+                is_verified=True,
+                created_at=datetime.datetime.utcnow()
+            )
+
+            ramkumar_user = User(
+                full_name="Ramkumar",
+                username="ramkumar",
+                email="mcram2008@gmail.com",
+                phone="6379782142",
+                password_hash=get_password_hash("Password123!"),
+                role="Viewer",
+                is_active=True,
+                is_verified=True,
+                created_at=datetime.datetime.utcnow()
+            )
+
+            db.add_all([admin_user, analyst_user, viewer_user, thaveedhuraja_user, santhosh_user, ramkumar_user])
             db.commit()
-            print("--> Seeded default Admin (admin / Admin123!), Analyst (analyst / Analyst123!), Viewer (viewer / Viewer123!)")
+            print("--> Seeded users: admin, analyst, viewer, thaveedhuraja (Admin), santhosh (Security Analyst), ramkumar (Viewer)")
             
         # 3. Seed Default Active ML Model if none exists
         if db.query(MLModel).count() == 0:

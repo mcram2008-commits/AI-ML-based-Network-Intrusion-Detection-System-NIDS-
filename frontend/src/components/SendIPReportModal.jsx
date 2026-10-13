@@ -47,12 +47,22 @@ export const SendIPReportModal = ({
       });
 
       setDispatchResult(res);
-      setToast({
-        type: 'success',
-        message: res.simulated
-          ? `Security Report generated & preview ready for ${recipientEmail}!`
-          : `Security Report successfully sent to ${recipientEmail}!`
-      });
+      if (res.status === 'AUTH_FAILED') {
+        setToast({
+          type: 'warning',
+          message: 'Gmail App Password invalid or expired. Report preview displayed below.'
+        });
+      } else if (res.simulated) {
+        setToast({
+          type: 'info',
+          message: `Preview generated for ${recipientEmail}. Real SMTP dispatch inactive.`
+        });
+      } else {
+        setToast({
+          type: 'success',
+          message: `Security Report successfully delivered to ${recipientEmail}!`
+        });
+      }
       setActiveTab('preview');
     } catch (err) {
       console.error('Email dispatch error:', err);
@@ -236,10 +246,29 @@ export const SendIPReportModal = ({
             </form>
           ) : (
             <div className="space-y-4">
-              <div className="p-3 bg-emerald-950/40 border border-emerald-500/30 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-emerald-400 text-xs font-medium">
-                  <CheckCircle size={18} />
-                  <span>{dispatchResult.message}</span>
+              <div className={`p-3.5 border rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                dispatchResult.status === 'AUTH_FAILED'
+                  ? 'bg-amber-950/40 border-amber-500/40'
+                  : dispatchResult.simulated
+                  ? 'bg-blue-950/40 border-blue-500/30'
+                  : 'bg-emerald-950/40 border-emerald-500/30'
+              }`}>
+                <div className="flex items-start sm:items-center gap-2.5 text-xs font-medium">
+                  {dispatchResult.status === 'AUTH_FAILED' ? (
+                    <ShieldAlert size={18} className="text-amber-400 shrink-0 mt-0.5 sm:mt-0" />
+                  ) : (
+                    <CheckCircle size={18} className="text-emerald-400 shrink-0 mt-0.5 sm:mt-0" />
+                  )}
+                  <div>
+                    <span className={dispatchResult.status === 'AUTH_FAILED' ? 'text-amber-300 font-semibold' : 'text-emerald-300 font-semibold'}>
+                      {dispatchResult.message}
+                    </span>
+                    {dispatchResult.status === 'AUTH_FAILED' && (
+                      <p className="text-[11px] text-amber-200/80 mt-1">
+                        👉 Update <code className="bg-slate-900 px-1 py-0.5 rounded text-amber-300">backend/.env</code> with a valid 16-character Google App Password from <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" className="underline text-blue-400 hover:text-blue-300">Google App Passwords</a>. You can also click <strong>Open in Gmail</strong> to send directly.
+                      </p>
+                    )}
+                  </div>
                 </div>
                 
                 {/* Alternative Direct Webmail / Client Launchers */}
