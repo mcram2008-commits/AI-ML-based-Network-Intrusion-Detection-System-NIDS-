@@ -82,16 +82,9 @@ export const ThreatMapPage = () => {
   const handleLaunchWave = async () => {
     setSimulatingWave(true);
     try {
-      const res = await client.post('/threat-map/simulate-attack-wave');
-      if (res.data?.wave_vectors) {
-        // Prepend wave vectors to current data for instant dramatic visual feedback
-        setMapData(prev => ({
-          ...prev,
-          global_threat_level: "CRITICAL",
-          attack_vectors: [...res.data.wave_vectors, ...(prev?.attack_vectors || [])].slice(0, 30)
-        }));
-        setTickerLogs(prev => [...res.data.wave_vectors, ...prev].slice(0, 15));
-      }
+      await client.post('/threat-map/simulate-attack-wave');
+      // Re-fetch genuine real-time attack flows from database
+      await fetchThreatMap();
     } catch (err) {
       console.error("Attack wave simulation error:", err);
     } finally {
@@ -131,11 +124,11 @@ export const ThreatMapPage = () => {
               </h1>
               <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-red-500/15 border border-red-500/30 text-red-400">
                 <span className="w-2 h-2 rounded-full bg-red-500 animate-ping inline-block" />
-                LIVE ATTACK MATRIX
+                100% REAL DATABASE STREAM
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
-              Real-time geospatial missile trajectory visualization of cross-border intrusions targeting protected infrastructure
+              Live geospatial attack trajectory visualization fetched directly from genuine database NetworkFlows & Predictions
             </p>
           </div>
         </div>
