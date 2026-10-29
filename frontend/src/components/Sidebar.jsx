@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard, Activity, Search, Bell, BarChart2,
-  Globe, Navigation, Database, Cpu, FileText, Users, Settings, UserCheck, Shield, Zap, Network, Sparkles, Lock, X
+  Globe, Navigation, Database, Cpu, FileText, Users, Settings, UserCheck, Shield, Zap, Network, Sparkles, Lock, X, Radar
 } from 'lucide-react';
 
 export const Sidebar = () => {
@@ -39,6 +39,7 @@ export const Sidebar = () => {
     {
       title: 'INTELLIGENCE & FORENSICS',
       items: [
+        { label: 'Cyber Threat Map', path: '/threat-map', icon: Globe, roles: ['Admin', 'Security Analyst', 'Viewer'] },
         { label: 'Topology & GeoMap', path: '/network-topology', icon: Network, roles: ['Admin', 'Security Analyst', 'Viewer'] },
         { label: 'Attack Analytics', path: '/analytics', icon: BarChart2, roles: ['Admin', 'Security Analyst', 'Viewer'] },
         { label: 'IP Investigation', path: '/ip-investigation', icon: Globe, roles: ['Admin', 'Security Analyst'] },
@@ -48,6 +49,7 @@ export const Sidebar = () => {
     {
       title: 'ML ENGINE & DATA',
       items: [
+        { label: 'Zero-Day Anomaly ML', path: '/anomaly-detection', icon: Radar, roles: ['Admin', 'Security Analyst'] },
         { label: 'Datasets', path: '/datasets', icon: Database, roles: ['Admin', 'Security Analyst'] },
         { label: 'ML Models', path: '/models', icon: Cpu, roles: ['Admin', 'Security Analyst'] },
         { label: 'Security Reports', path: '/reports', icon: FileText, roles: ['Admin', 'Security Analyst', 'Viewer'] },

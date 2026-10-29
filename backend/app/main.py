@@ -14,7 +14,7 @@ from app.routers import (
     auth, users, datasets, models, predict,
     dashboard, alerts, ip_analysis, attacks, reports, settings as settings_router,
     notifications, firewall, simulator, advisor, route_optimization, live_sniffer, adversarial,
-    playbooks, topology, secure_share
+    playbooks, topology, secure_share, threat_map, anomaly
 )
 
 
@@ -104,6 +104,8 @@ app.include_router(adversarial.router, prefix=settings.API_PREFIX)
 app.include_router(playbooks.router, prefix=settings.API_PREFIX)
 app.include_router(topology.router, prefix=settings.API_PREFIX)
 app.include_router(secure_share.router, prefix=settings.API_PREFIX)
+app.include_router(threat_map.router, prefix=settings.API_PREFIX)
+app.include_router(anomaly.router, prefix=settings.API_PREFIX)
 
 
 

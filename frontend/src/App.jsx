@@ -30,6 +30,8 @@ import NetworkTopologyPage from './pages/NetworkTopologyPage';
 import SharedReportViewerPage from './pages/SharedReportViewerPage';
 import AiCopilotPage from './pages/AiCopilotPage';
 import FirewallCenterPage from './pages/FirewallCenterPage';
+import ThreatMapPage from './pages/ThreatMapPage';
+import AnomalyDetectionPage from './pages/AnomalyDetectionPage';
 import AiCopilotWidget from './components/AiCopilotWidget';
 
 
@@ -122,6 +124,22 @@ export function App() {
             element={
               <ProtectedRoute allowedRoles={['Admin', 'Security Analyst']}>
                 <ProtectedLayout><FirewallCenterPage /></ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/threat-map"
+            element={
+              <ProtectedRoute allowedRoles={['Admin', 'Security Analyst', 'Viewer']}>
+                <ProtectedLayout><ThreatMapPage /></ProtectedLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/anomaly-detection"
+            element={
+              <ProtectedRoute allowedRoles={['Admin', 'Security Analyst']}>
+                <ProtectedLayout><AnomalyDetectionPage /></ProtectedLayout>
               </ProtectedRoute>
             }
           />
