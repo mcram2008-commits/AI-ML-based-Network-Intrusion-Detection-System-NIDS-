@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import client from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import {
   Navigation, Search, ShieldCheck, ShieldAlert, Cpu, ArrowRight,
   Globe, Radio, Server, Mail, Download, CheckCircle2, AlertTriangle, XCircle, Zap,
@@ -8,9 +9,10 @@ import {
 import ToastNotification from '../components/ToastNotification';
 
 export const RouteOptimizationPage = () => {
-  const [senderContact, setSenderContact] = useState('+91-9876543210');
+  const { user } = useAuth();
+  const [senderContact, setSenderContact] = useState(user?.phone_number || '6369823726');
   const [senderIp, setSenderIp] = useState('');
-  const [receiverContact, setReceiverContact] = useState('+1-555-0199');
+  const [receiverContact, setReceiverContact] = useState('+91-9840123456');
   const [receiverIp, setReceiverIp] = useState('');
 
   const [analysis, setAnalysis] = useState(null);
@@ -20,8 +22,8 @@ export const RouteOptimizationPage = () => {
 
   // Email & SMS Modal State
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
-  const [recipientEmail, setRecipientEmail] = useState('');
-  const [recipientPhone, setRecipientPhone] = useState('');
+  const [recipientEmail, setRecipientEmail] = useState(user?.email || 'admin@nids-defense.corp');
+  const [recipientPhone, setRecipientPhone] = useState(user?.phone_number || '6369823726');
   const [reportNotes, setReportNotes] = useState('');
   const [sendingEmail, setSendingEmail] = useState(false);
   const [dispatchResult, setDispatchResult] = useState(null);

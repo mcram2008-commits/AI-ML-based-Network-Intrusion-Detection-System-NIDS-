@@ -12,7 +12,7 @@ export const NetworkTopologyPage = () => {
   const [loading, setLoading] = useState(true);
 
   // GeoIP Lookup state
-  const [lookupIp, setLookupIp] = useState('185.220.101.5');
+  const [lookupIp, setLookupIp] = useState('');
   const [geoResult, setGeoResult] = useState(null);
   const [geoLoading, setGeoLoading] = useState(false);
 
@@ -21,8 +21,20 @@ export const NetworkTopologyPage = () => {
       setLoading(true);
       const res = await client.get('/topology/graph');
       setGraphData(res.data);
-      if (res.data.nodes.length > 0 && !selectedNode) {
-        setSelectedNode(res.data.nodes[0]);
+      if (res.data.nodes.length > 0) {
+        if (!selectedNode) {
+          setSelectedNode(res.data.nodes[0]);
+        }
+        // Auto-select real detected attacker node IP
+        const attackerNode = res.data.nodes.find(n => n.type === 'attacker');
+        if (attackerNode) {
+          const target = attackerNode.id || attackerNode.name;
+          setLookupIp(target);
+          handleLookupGeoIp(target);
+        } else {
+          setLookupIp(res.data.nodes[0].id);
+          handleLookupGeoIp(res.data.nodes[0].id);
+        }
       }
     } catch (err) {
       console.error('Failed to fetch network topology:', err);
@@ -48,7 +60,6 @@ export const NetworkTopologyPage = () => {
 
   useEffect(() => {
     fetchTopologyData();
-    handleLookupGeoIp('185.220.101.5');
   }, []);
 
 

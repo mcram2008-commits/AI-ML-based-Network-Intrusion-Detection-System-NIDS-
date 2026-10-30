@@ -7,18 +7,21 @@ import FirewallRuleModal from '../components/FirewallRuleModal';
 
 
 export const IPInvestigationPage = () => {
-  const [ipInput, setIpInput] = useState('185.220.101.5');
+  const [ipInput, setIpInput] = useState('');
   const [ipData, setIpData] = useState(null);
+  const [recentThreats, setRecentThreats] = useState([]);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
   const [isMailModalOpen, setIsMailModalOpen] = useState(false);
   const [isFirewallModalOpen, setIsFirewallModalOpen] = useState(false);
 
   const fetchIPDetails = async (targetIP) => {
+    if (!targetIP) return;
     setLoading(true);
     try {
       const res = await client.get(`/ip/${targetIP}`);
       setIpData(res.data);
+      setIpInput(targetIP);
     } catch (err) {
       setToast({ type: 'error', message: 'Failed to retrieve IP telemetry details' });
     } finally {
@@ -27,7 +30,32 @@ export const IPInvestigationPage = () => {
   };
 
   useEffect(() => {
-    fetchIPDetails('185.220.101.5');
+    const searchParams = new URLSearchParams(window.location.search);
+    const queryIp = searchParams.get('ip');
+
+    const loadInitialData = async () => {
+      try {
+        const threatsRes = await client.get('/ip/threats/recent');
+        const list = threatsRes.data?.recent_threat_ips || [];
+        setRecentThreats(list);
+
+        if (queryIp) {
+          fetchIPDetails(queryIp);
+        } else if (list.length > 0) {
+          fetchIPDetails(list[0].ip);
+        } else {
+          fetchIPDetails('185.220.101.5');
+        }
+      } catch (e) {
+        if (queryIp) {
+          fetchIPDetails(queryIp);
+        } else {
+          fetchIPDetails('185.220.101.5');
+        }
+      }
+    };
+
+    loadInitialData();
   }, []);
 
   const handleSearch = (e) => {
@@ -56,6 +84,31 @@ export const IPInvestigationPage = () => {
         </h1>
         <p className="text-slate-400 text-xs mt-1">Deep forensic telemetry, automated threat intelligence, geolocation, & historical timeline</p>
       </div>
+
+      {/* Quick Select Real Threat IPs from Live Network DB */}
+      {recentThreats.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 pt-1 pb-2">
+          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 mr-1">
+            <ShieldAlert size={14} className="text-red-400 animate-pulse" />
+            Live Detected Attackers:
+          </span>
+          {recentThreats.map((threat) => (
+            <button
+              key={threat.ip}
+              onClick={() => fetchIPDetails(threat.ip)}
+              className={`px-2.5 py-1 rounded-md text-xs font-mono transition-all border flex items-center gap-1.5 ${
+                ipInput === threat.ip
+                  ? 'bg-blue-600/30 text-blue-300 border-blue-500 shadow-sm'
+                  : 'bg-slate-900/80 text-slate-300 border-slate-800 hover:border-slate-600 hover:text-white'
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+              <span className="font-semibold">{threat.ip}</span>
+              <span className="text-[10px] text-slate-400">({threat.primary_category})</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Search & Action Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
