@@ -153,7 +153,7 @@ export const DashboardPage = () => {
           </h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={charts?.traffic_over_time || []}>
+              <AreaChart data={charts?.traffic_over_time || charts?.time_series || []}>
                 <defs>
                   <linearGradient id="colorNormal" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#10B981" stopOpacity={0.25}/>
@@ -214,7 +214,7 @@ export const DashboardPage = () => {
           </h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={charts?.attack_distribution || []}>
+              <BarChart data={charts?.attack_distribution || charts?.attack_category_distribution || []}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#141C2E" />
                 <XAxis dataKey="category" stroke="#64748B" fontSize={10} tickLine={false} />
                 <YAxis stroke="#64748B" fontSize={11} tickLine={false} />
@@ -232,7 +232,7 @@ export const DashboardPage = () => {
           </h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={charts?.threat_severity || []} layout="vertical">
+              <BarChart data={charts?.threat_severity || charts?.threat_severity_distribution || []} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="#141C2E" />
                 <XAxis type="number" stroke="#64748B" fontSize={11} tickLine={false} />
                 <YAxis dataKey="level" type="category" stroke="#64748B" fontSize={11} tickLine={false} />
@@ -312,7 +312,7 @@ export const DashboardPage = () => {
           </h3>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={charts?.top_dest_ips || []}>
+              <BarChart data={charts?.top_dest_ips || charts?.top_destination_ips || []}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#141C2E" />
                 <XAxis dataKey="ip" stroke="#64748B" fontSize={9} tickLine={false} />
                 <YAxis stroke="#64748B" fontSize={11} tickLine={false} />

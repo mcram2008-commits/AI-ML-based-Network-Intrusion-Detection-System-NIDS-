@@ -193,13 +193,25 @@ def get_dashboard_charts(db: Session = Depends(get_db), current_user: User = Dep
         top_dest_ips = [{"ip": "No traffic", "count": 0}]
 
     res = {
+        # 1. Traffic timeline (both aliases supported)
+        "traffic_over_time": time_series,
         "time_series": time_series,
+        # 2. Normal vs Malicious
         "normal_vs_malicious": normal_vs_malicious,
+        # 3. Attack distribution (both aliases supported)
+        "attack_distribution": cat_dist,
         "attack_category_distribution": cat_dist,
+        # 4. Threat severity (both aliases supported)
+        "threat_severity": threat_severity,
         "threat_severity_distribution": threat_severity,
+        # 5. Detection trend
         "detection_rate_trend": detection_rate_trend,
+        # 6. Protocol
         "protocol_distribution": protocol_dist,
+        # 7. Top sources
         "top_source_ips": top_source_ips,
+        # 8. Top destinations (both aliases supported)
+        "top_dest_ips": top_dest_ips,
         "top_destination_ips": top_dest_ips
     }
     _charts_cache["data"] = res
